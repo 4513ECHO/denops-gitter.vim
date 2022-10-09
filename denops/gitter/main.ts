@@ -37,7 +37,13 @@ export async function main(denops: Denops): Promise<void> {
         vars.g.set(denops, "gitter#_parent_winid", winid),
         vars.b.set(denops, "_gitter", { bufnr, roomId, uri }),
       ]);
-      const [id] = anonymous.add(denops, () => controller.abort());
+      const [id] = anonymous.add(denops, () => {
+        try {
+          controller.abort();
+        } catch (_) {
+          // do nothing
+        }
+      });
 
       await autocmd.group(denops, "gitter_internal", (helper) => {
         helper.remove("*", `<buffer=${bufnr}>`);
