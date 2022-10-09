@@ -20,7 +20,7 @@ endfunction
 
 function! gitter#buffer#update(bufnr, entry) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
-  call appendbufline(a:bufnr, '$', [repeat('-', 80), '@' .. a:entry.name, '', a:entry.text])
+  call appendbufline(a:bufnr, '$', [repeat('-', 80), '@' .. a:entry.name, ''] + split(a:entry.text, "\n"))
   call setbufvar(a:bufnr, '&modifiable', v:false)
 endfunction
 
