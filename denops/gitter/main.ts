@@ -28,6 +28,17 @@ export async function main(denops: Denops): Promise<void> {
         return;
       }
 
+      // get room's message history at first
+      const messages = await getRoomMessages(roomId, token, { limit: 100 });
+      const entries = messages.map((msg) => {
+        return {
+          name: msg.fromUser.displayName,
+          text: msg.text,
+          sent: msg.sent,
+        };
+      });
+      await denops.call("gitter#buffer#update", bufnr, entries);
+
       const [stream] = await Promise.all([
         chatMessagesStream({
           roomId: roomId!, // TODO: handle null
@@ -47,7 +58,7 @@ export async function main(denops: Denops): Promise<void> {
 
       await autocmd.group(denops, "gitter_internal", (helper) => {
         helper.remove("*", `<buffer=${bufnr}>`);
-        helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! GGzb");
+        helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! G");
         helper.define(
           "BufUnload",
           `<buffer=${bufnr}>`,
@@ -55,17 +66,6 @@ export async function main(denops: Denops): Promise<void> {
           { once: true },
         );
       });
-
-      // get room's message history at first
-      const messages = await getRoomMessages(roomId, token, { limit: 100 });
-      const entries = messages.map((msg) => {
-        return {
-          name: msg.fromUser.displayName,
-          text: msg.text,
-          sent: msg.sent,
-        };
-      });
-      await denops.call("gitter#buffer#update", bufnr, entries);
 
       for await (const data of stream) {
         const { fromUser: { displayName: name }, text, sent } = data;
