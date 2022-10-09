@@ -31,6 +31,7 @@ export async function main(denops: Denops): Promise<void> {
         return {
           name: msg.fromUser.displayName,
           text: msg.text,
+          sent: msg.sent,
         };
       });
       await denops.call("gitter#buffer#update", bufnr, entries);
@@ -56,8 +57,12 @@ export async function main(denops: Denops): Promise<void> {
         );
       });
       for await (const data of stream) {
-        const { fromUser: { displayName: name }, text } = data;
-        await denops.call("gitter#buffer#update", bufnr, [{ name, text }]);
+        const { fromUser: { displayName: name }, text, sent } = data;
+        await denops.call("gitter#buffer#update", bufnr, [{
+          name,
+          text,
+          sent,
+        }]);
       }
     },
     async sendMessage(roomId: unknown, text: unknown): Promise<void> {
