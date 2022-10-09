@@ -25,6 +25,28 @@ export async function main(denops: Denops): Promise<void> {
         return;
       }
 
+      const [stream] = await Promise.all([
+        chatMessagesStream({
+          roomId: roomId!, // TODO: handle null
+          token,
+          signal: controller.signal,
+        }),
+        vars.g.set(denops, "gitter#_parent_winid", winid),
+        vars.b.set(denops, "_gitter", { bufnr, roomId, uri }),
+      ]);
+      const [id] = anonymous.add(denops, () => controller.abort());
+
+      await autocmd.group(denops, "gitter_internal", (helper) => {
+        helper.remove("*", `<buffer=${bufnr}>`);
+        helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! GGzb");
+        helper.define(
+          "BufUnload",
+          `<buffer=${bufnr}>`,
+          `call denops#notify('${denops.name}', '${id}', [])`,
+          { once: true },
+        );
+      });
+
       // get room's message history at first
       const messages = await getRoomMessages(roomId, token, { limit: 100 });
       const entries = messages.map((msg) => {
@@ -36,26 +58,6 @@ export async function main(denops: Denops): Promise<void> {
       });
       await denops.call("gitter#buffer#update", bufnr, entries);
 
-      const [stream] = await Promise.all([
-        chatMessagesStream({
-          roomId: roomId!, // TODO: handle null
-          token,
-          signal: controller.signal,
-        }),
-        vars.g.set(denops, "gitter#_parent_winid", winid),
-        vars.b.set(denops, "_gitter", { bufnr, roomId, uri }),
-      ]);
-      const [id] = anonymous.add(denops, () => controller.abort());
-      await autocmd.group(denops, "gitter_internal", (helper) => {
-        helper.remove("*", `<buffer=${bufnr}>`);
-        helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! GGzb");
-        helper.define(
-          "BufUnload",
-          `<buffer=${bufnr}>`,
-          `call denops#notify('${denops.name}', '${id}', [])`,
-          { once: true },
-        );
-      });
       for await (const data of stream) {
         const { fromUser: { displayName: name }, text, sent } = data;
         await denops.call("gitter#buffer#update", bufnr, [{
