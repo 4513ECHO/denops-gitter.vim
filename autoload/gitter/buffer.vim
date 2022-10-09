@@ -13,6 +13,7 @@ function! gitter#buffer#open(uri) abort
     setlocal filetype=gitter
     call denops#notify(s:name, 'loadRoom', [substitute(uri, '\v^room/|/?$', '', 'g')])
   else
+    setlocal bufhidden=wipe buftype=nofile noswapfile
     call setline(1, 'You accessed wrong named buffer')
   endif
 endfunction
@@ -23,8 +24,8 @@ function! gitter#buffer#update(bufnr, entries) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
   for entry in a:entries
     call appendbufline(a:bufnr, '$', [
-          \ repeat('-', 80), printf('@%-55s%s', entry.name, entry.sent),
-          \ ] + split(entry.text, "\n"))
+          \ '', repeat('-', 80), printf('@%-55s%s', entry.name, entry.sent), ''
+          \ ] + map(split(entry.text, "\n"), { _, val -> '  ' .. val  }))
   endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)
 endfunction

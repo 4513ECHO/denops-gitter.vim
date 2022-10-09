@@ -7,11 +7,13 @@ setlocal bufhidden=hide noswapfile nomodifiable buftype=nofile
 setlocal nolist nonumber norelativenumber signcolumn=no foldcolumn=0
 
 " TODO: provide plugin mapping
-nnoremap <buffer> i <Cmd>call <SID>open_input()<CR>
-nnoremap <buffer> ma <Cmd>call <SID>add_media()<CR>
+nnoremap <buffer> <Plug>(gitter:input:open) <Cmd>call <SID>open_input()<CR>
+nnoremap <buffer> <Plug>(gitter:media:add) <Cmd>call <SID>add_media()<CR>
+nnoremap <buffer> i <Plug>(gitter:input:open)
+nnoremap <buffer> ma <Plug>(gitter:media:add)
 
 function! s:open_input() abort
-  execute 'botright new gitter://input/' .. b:_gitter.roomId
+  execute 'botright 5new gitter://input/' .. b:_gitter.roomId
   startinsert
 endfunction
 
