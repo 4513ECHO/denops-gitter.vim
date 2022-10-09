@@ -16,8 +16,5 @@ function! s:open_input() abort
 endfunction
 
 function! s:add_media() abort
-  let uri = substitute(bufname(), '^gitter://', '', '')
-  call denops#notify('gitter', "sendMedia", [
-        \ substitute(uri, '\v^room/|/?$', '', 'g'),
-        \ ])
+  call denops#notify('gitter', 'sendMedia', [b:_gitter.roomId])
 endfunction
