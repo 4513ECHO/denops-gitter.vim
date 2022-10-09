@@ -21,7 +21,7 @@ export async function main(denops: Denops): Promise<void> {
       ]);
 
       if (!roomId) {
-        await denops.cmd("echo not found roomId");
+        await denops.cmd("echo 'not found roomId'");
         return;
       }
 
