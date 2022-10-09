@@ -1,3 +1,8 @@
+export interface GetRoomMessageOptions {
+  query?: string;
+  limit?: number;
+}
+
 export interface Message {
   id: string;
   text: string;
