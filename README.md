@@ -2,8 +2,8 @@
 
 [Gitter](https://gitter.im) client for vim written in denops
 
-**NOTE:** This plugins is still alpha version and working in progress. There may
-be bugs and breaking changes.
+> **Note** This plugins is still alpha version and working in progress. There
+> may be bugs and breaking changes.
 
 ## Requirements
 
