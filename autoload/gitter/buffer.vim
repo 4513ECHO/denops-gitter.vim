@@ -10,8 +10,7 @@ function! gitter#buffer#open(uri) abort
     autocmd gitter_internal BufWriteCmd <buffer> setlocal nomodified
     nnoremap <buffer> q <Cmd>call <SID>close_input()<CR>
   elseif uri =~ '\v^room/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/?$'
-    setlocal nolist bufhidden=hide noswapfile nomodifiable buftype=nofile filetype=gitter
-    nnoremap <buffer> i <Cmd>call <SID>open_input()<CR>
+    setlocal filetype=gitter
     call denops#notify(s:name, 'loadRoom', [substitute(uri, '\v^room/|/?$', '', 'g')])
   else
     call setline(1, 'You accessed wrong named buffer')
@@ -22,11 +21,6 @@ function! gitter#buffer#update(bufnr, entry) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
   call appendbufline(a:bufnr, '$', [repeat('-', 80), '@' .. a:entry.name, ''] + split(a:entry.text, "\n"))
   call setbufvar(a:bufnr, '&modifiable', v:false)
-endfunction
-
-function! s:open_input() abort
-  execute 'botright new gitter://input/' .. b:_gitter.roomId
-  startinsert
 endfunction
 
 function! s:close_input() abort
