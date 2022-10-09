@@ -14,25 +14,28 @@ export async function main(denops: Denops): Promise<void> {
   denops.dispatcher = {
     async loadRoom(uri: unknown): Promise<void> {
       const controller = new AbortController();
-      const [bufnr, roomId] = await Promise.all([
+      const [bufnr, winid, roomId] = await Promise.all([
         denops.call("bufnr"),
+        denops.call("win_getid"),
         convertUriToId(ensureString(uri), token),
       ]);
-      const [stream, ids] = await Promise.all([
+      const [stream] = await Promise.all([
         chatMessagesStream({
           roomId: roomId!, // TODO: handle null
           token,
           signal: controller.signal,
         }),
-        anonymous.add(denops, () => controller.abort()),
+        vars.g.set(denops, "gitter#_parent_winid", winid),
         vars.b.set(denops, "_gitter", { bufnr, roomId, uri }),
       ]);
+      const [id] = anonymous.add(denops, () => controller.abort());
       await autocmd.group(denops, "gitter_internal", (helper) => {
         helper.remove("*", `<buffer=${bufnr}>`);
+        helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! GGzb");
         helper.define(
           "BufUnload",
           `<buffer=${bufnr}>`,
-          `call denops#notify('${denops.name}', '${ids[0]}', [])`,
+          `call denops#notify('${denops.name}', '${id}', [])`,
           { once: true },
         );
       });

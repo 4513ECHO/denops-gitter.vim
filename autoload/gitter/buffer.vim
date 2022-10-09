@@ -32,6 +32,9 @@ function! s:close_input() abort
           \ matchstr(bufname(), '^gitter://input/\zs[A-Za-z0-9]\+$'),
           \ join(getline(1, '$'), "\n")
           \ ])
-    bwipeout
+    close
+    if exists('g:gitter#_parent_winid')
+      call win_gotoid(g:gitter#_parent_winid)
+    endif
   endif
 endfunction
