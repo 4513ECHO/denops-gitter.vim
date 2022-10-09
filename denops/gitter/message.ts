@@ -6,6 +6,7 @@ export interface SendMessageOptions {
   text: string;
   parentId?: string;
 }
+
 export async function sendMessage(
   option: SendMessageOptions,
 ): Promise<Message> {
@@ -25,4 +26,29 @@ export async function sendMessage(
   return result.json();
 }
 
+export interface GetRoomMessageOptions {
+  query?: string;
+  limit?: number;
+}
+
+export async function getRoomMessages(
+  roomId: string,
+  token: string,
+  option?: GetRoomMessageOptions,
+): Promise<Message[]> {
+  let endpoint = `https://api.gitter.im/v1/rooms/${roomId}/chatMessages`;
+  if (option && Object.keys(option).length > 0) {
+    const params = new URLSearchParams(option as Record<string, string>);
+    endpoint += `?${params.toString()}`;
+  }
+  const result = await fetch(
+    endpoint,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    },
+  );
+  return result.json();
 }

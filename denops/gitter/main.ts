@@ -4,8 +4,8 @@ import * as autocmd from "https://deno.land/x/denops_std@v3.8.2/autocmd/mod.ts";
 import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.ts";
 import { ensureString } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
 import { chatMessagesStream } from "./stream.ts";
-import { convertUriToId, getRoomMessages } from "./room.ts";
-import { sendMessage } from "./message.ts";
+import { convertUriToId } from "./room.ts";
+import { getRoomMessages, sendMessage } from "./message.ts";
 
 export async function main(denops: Denops): Promise<void> {
   const [token] = await Promise.all([
@@ -21,7 +21,7 @@ export async function main(denops: Denops): Promise<void> {
       ]);
 
       if (!roomId) {
-        await denops.cmd("echo 'not found roomId'");
+        await denops.call("gitter#util#warn", "roomId is not found");
         return;
       }
 
