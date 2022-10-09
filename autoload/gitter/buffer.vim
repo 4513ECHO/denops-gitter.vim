@@ -26,7 +26,7 @@ endfunction
 
 function! s:close_input() abort
   if &l:modified
-    echohl WarningMsg | echo 'Your changes are not saved' | echohl NONE
+    call gitter#util#warn('Your changes are not saved')
   else
     call denops#notify(s:name, 'sendMessage', [
           \ matchstr(bufname(), '^gitter://input/\zs[A-Za-z0-9]\+$'),

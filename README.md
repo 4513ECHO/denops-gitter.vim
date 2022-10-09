@@ -10,7 +10,7 @@
 - [denops.vim](https://github.com/vim-denops/denops.vim)
 - Personal Access Token for Gitter
 
-Please get it from [here](https://developer.gitter.im/login).
+Please get the token from [here](https://developer.gitter.im/login).
 
 ## Usage
 
