@@ -7,6 +7,12 @@ export interface SendMessageOptions {
   parentId?: string;
 }
 
+export interface SendMediaOptions {
+  token: string;
+  roomId: string;
+  media: Uint8Array;
+}
+
 export async function sendMessage(
   option: SendMessageOptions,
 ): Promise<Message> {
@@ -51,4 +57,43 @@ export async function getRoomMessages(
     },
   );
   return result.json();
+}
+
+// Refer: https://github.com/wechaty/puppet-gitter/blob/93af7eba2412564f32138c9b95b335e45a95e885/src/puppet-gitter.ts#L511-L545
+export async function sendMedia(
+  option: SendMediaOptions,
+): Promise<Response> {
+  const { roomId, token } = option;
+  const resp = await fetch(
+    `https://gitter.im/api/private/generate-signature?room_id=${roomId}&type=image`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    },
+  );
+
+  const { sig, params } = await resp.json() as {
+    sig: string;
+    params: string;
+  };
+
+  const uuid = crypto.randomUUID().replace(/-/g, "");
+  const transloadit = await fetch(
+    `https://api2.transloadit.com/instances/bored?${uuid}`,
+  );
+  const { api2_host: host } = await transloadit.json() as { api2_host: string };
+
+  const uploadUrl = `https://${host}/assemblies/${uuid}?redirect=false`;
+  const body = new FormData();
+  body.append("signature", sig);
+  body.append("params", params);
+  body.append("file", new Blob([option.media.buffer], { type: "image/png" }));
+
+  return await fetch(uploadUrl, {
+    method: "POST",
+    body: body,
+  });
 }
