@@ -5,7 +5,7 @@ import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.
 import { ensureString } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
 import { chatMessagesStream } from "./stream.ts";
 import { convertUriToId } from "./room.ts";
-import { getRoomMessages, sendMessage } from "./message.ts";
+import { getRoomMessages, sendMedia, sendMessage } from "./message.ts";
 
 export async function main(denops: Denops): Promise<void> {
   const [token] = await Promise.all([
@@ -65,6 +65,26 @@ export async function main(denops: Denops): Promise<void> {
           text,
           sent,
         }]);
+      }
+    },
+    async sendMedia(uri: unknown): Promise<void> {
+      const roomId = await convertUriToId(ensureString(uri), token);
+      if (!roomId) {
+        await denops.cmd("echo 'not found roomId'");
+        return;
+      }
+      const file = await denops.call("input", "media: ", "", "file") as string;
+      if (file) {
+        const media = await Deno.readFile(
+          await denops.call("expand", file) as string,
+        );
+        const resp = await sendMedia({ roomId, token, media });
+
+        if (resp.status != 200) {
+          await denops.cmd(
+            `echo 'failed to upload media, response: ${await resp.text()}'`,
+          );
+        }
       }
     },
     async sendMessage(roomId: unknown, text: unknown): Promise<void> {
