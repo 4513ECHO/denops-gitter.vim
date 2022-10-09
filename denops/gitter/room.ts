@@ -1,10 +1,32 @@
-import type { Room } from "./types.d.ts";
+import type { GetRoomMessageOptions, Message, Room } from "./types.d.ts";
 
 const cache = new Map<string, string>();
 
 export async function getRooms(token: string): Promise<Room[]> {
   const result = await fetch(
     "https://api.gitter.im/v1/rooms",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    },
+  );
+  return result.json();
+}
+
+export async function getRoomMessages(
+  roomId: string,
+  token: string,
+  option?: GetRoomMessageOptions,
+): Promise<Message[]> {
+  let endpoint = `https://api.gitter.im/v1/rooms/${roomId}/chatMessages`;
+  if (option && Object.keys(option).length) {
+    const params = new URLSearchParams(option as Record<string, string>);
+    endpoint += `?${params.toString()}`;
+  }
+  const result = await fetch(
+    endpoint,
     {
       headers: {
         Authorization: `Bearer ${token}`,

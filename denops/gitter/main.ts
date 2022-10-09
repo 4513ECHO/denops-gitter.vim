@@ -4,7 +4,7 @@ import * as autocmd from "https://deno.land/x/denops_std@v3.8.2/autocmd/mod.ts";
 import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.ts";
 import { ensureString } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
 import { chatMessagesStream } from "./stream.ts";
-import { convertUriToId } from "./room.ts";
+import { convertUriToId, getRoomMessages } from "./room.ts";
 import { sendMessage } from "./message.ts";
 
 export async function main(denops: Denops): Promise<void> {
@@ -19,6 +19,22 @@ export async function main(denops: Denops): Promise<void> {
         denops.call("win_getid"),
         convertUriToId(ensureString(uri), token),
       ]);
+
+      if (!roomId) {
+        await denops.cmd("echo not found roomId");
+        return;
+      }
+
+      // get room's message history at first
+      const messages = await getRoomMessages(roomId, token, { limit: 100 });
+      const entries = messages.map((msg) => {
+        return {
+          name: msg.fromUser.displayName,
+          text: msg.text,
+        };
+      });
+      await denops.call("gitter#buffer#update", bufnr, entries);
+
       const [stream] = await Promise.all([
         chatMessagesStream({
           roomId: roomId!, // TODO: handle null
@@ -41,7 +57,7 @@ export async function main(denops: Denops): Promise<void> {
       });
       for await (const data of stream) {
         const { fromUser: { displayName: name }, text } = data;
-        await denops.call("gitter#buffer#update", bufnr, { name, text });
+        await denops.call("gitter#buffer#update", bufnr, [{ name, text }]);
       }
     },
     async sendMessage(roomId: unknown, text: unknown): Promise<void> {

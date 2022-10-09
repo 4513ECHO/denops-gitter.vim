@@ -18,9 +18,11 @@ function! gitter#buffer#open(uri) abort
   endif
 endfunction
 
-function! gitter#buffer#update(bufnr, entry) abort
+function! gitter#buffer#update(bufnr, entries) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
-  call appendbufline(a:bufnr, '$', [repeat('-', 80), '@' .. a:entry.name, ''] + split(a:entry.text, "\n"))
+  for entry in a:entries
+    call appendbufline(a:bufnr, '$', [repeat('-', 80), '@' .. entry.name, ''] + split(entry.text, "\n"))
+  endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)
 endfunction
 
