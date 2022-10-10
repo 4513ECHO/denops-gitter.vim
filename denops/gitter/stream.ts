@@ -8,9 +8,9 @@ export interface ChatMessagesStreamOptions {
   signal?: AbortSignal;
 }
 
-export async function chatMessagesStream(
+export async function* chatMessagesStream(
   option: ChatMessagesStreamOptions,
-): Promise<ReadableStream<Message>> {
+): AsyncIterable<Message> {
   const { body } = await fetch(
     `https://stream.gitter.im/v1/rooms/${option.roomId}/chatMessages`,
     {
@@ -21,8 +21,19 @@ export async function chatMessagesStream(
       signal: option.signal,
     },
   );
-  return body!
-    .pipeThrough(new TextDecoderStream())
-    .pipeThrough(new TextLineStream())
-    .pipeThrough(new JsonParseStream()) as unknown as ReadableStream<Message>;
+  try {
+    for await (
+      const data of body!
+        .pipeThrough(new TextDecoderStream())
+        .pipeThrough(new TextLineStream())
+        .pipeThrough(new JsonParseStream())
+    ) {
+      yield data as unknown as Message;
+    }
+  } catch (error: unknown) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return;
+    }
+    throw error;
+  }
 }

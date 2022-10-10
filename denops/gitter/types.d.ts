@@ -1,9 +1,8 @@
 export interface Message {
   id: string;
   text: string;
-  html: string;
   sent: string;
-  threadMessageCount: number;
+  threadMessageCount?: number;
   fromUser: User;
 }
 

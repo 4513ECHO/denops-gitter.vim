@@ -39,23 +39,12 @@ export async function main(denops: Denops): Promise<void> {
       });
       await denops.call("gitter#buffer#update", bufnr, entries);
 
-      const [stream] = await Promise.all([
-        chatMessagesStream({
-          roomId,
-          token,
-          signal: controller.signal,
-        }),
+      await Promise.all([
         vars.g.set(denops, "gitter#_parent_winid", winid),
         vars.b.set(denops, "_gitter", { bufnr, roomId, uri }),
         denops.cmd("normal! G"),
       ]);
-      const [id] = anonymous.add(denops, () => {
-        try {
-          controller.abort();
-        } catch (_) {
-          // do nothing
-        }
-      });
+      const [id] = anonymous.once(denops, () => controller.abort());
 
       await autocmd.group(denops, "gitter_internal", (helper) => {
         helper.remove("*", `<buffer=${bufnr}>`);
@@ -68,7 +57,13 @@ export async function main(denops: Denops): Promise<void> {
         );
       });
 
-      for await (const data of stream) {
+      for await (
+        const data of chatMessagesStream({
+          roomId,
+          token,
+          signal: controller.signal,
+        })
+      ) {
         const { fromUser: { displayName: name }, text, sent } = data;
         await denops.call("gitter#buffer#update", bufnr, [{
           name,
