@@ -21,19 +21,12 @@ export async function* chatMessagesStream(
       signal: option.signal,
     },
   );
-  try {
-    for await (
-      const data of body!
-        .pipeThrough(new TextDecoderStream())
-        .pipeThrough(new TextLineStream())
-        .pipeThrough(new JsonParseStream())
-    ) {
-      yield data as unknown as Message;
-    }
-  } catch (error: unknown) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      return;
-    }
-    throw error;
+  for await (
+    const data of body!
+      .pipeThrough(new TextDecoderStream())
+      .pipeThrough(new TextLineStream())
+      .pipeThrough(new JsonParseStream())
+  ) {
+    yield data as unknown as Message;
   }
 }

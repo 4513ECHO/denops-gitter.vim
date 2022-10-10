@@ -56,19 +56,26 @@ export async function main(denops: Denops): Promise<void> {
         }),
       ]);
 
-      for await (
-        const data of chatMessagesStream({
-          roomId,
-          token,
-          signal: controller.signal,
-        })
-      ) {
-        const { fromUser: { displayName: name }, text, sent } = data;
-        await denops.call("gitter#buffer#update", bufnr, [{
-          name,
-          text,
-          sent,
-        }]);
+      try {
+        for await (
+          const data of chatMessagesStream({
+            roomId,
+            token,
+            signal: controller.signal,
+          })
+        ) {
+          const { fromUser: { displayName: name }, text, sent } = data;
+          await denops.call("gitter#buffer#update", bufnr, [{
+            name,
+            text,
+            sent,
+          }]);
+        }
+      } catch (error: unknown) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+        throw error;
       }
     },
     async sendMedia(roomId: unknown): Promise<void> {
