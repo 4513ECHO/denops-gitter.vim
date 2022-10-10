@@ -17,6 +17,7 @@ export async function main(denops: Denops): Promise<void> {
   denops.dispatcher = {
     async loadRoom(uri: unknown): Promise<void> {
       const controller = new AbortController();
+      const [id] = anonymous.once(denops, () => controller.abort());
       const [bufnr, winid, roomId] = await Promise.all([
         denops.call("bufnr"),
         denops.call("win_getid"),
@@ -43,19 +44,17 @@ export async function main(denops: Denops): Promise<void> {
         vars.g.set(denops, "gitter#_parent_winid", winid),
         vars.b.set(denops, "_gitter", { bufnr, roomId, uri }),
         denops.cmd("normal! G"),
+        autocmd.group(denops, "gitter_internal", (helper) => {
+          helper.remove("*", `<buffer=${bufnr}>`);
+          helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! G");
+          helper.define(
+            "BufUnload",
+            `<buffer=${bufnr}>`,
+            `call denops#notify('${denops.name}', '${id}', [])`,
+            { once: true },
+          );
+        }),
       ]);
-      const [id] = anonymous.once(denops, () => controller.abort());
-
-      await autocmd.group(denops, "gitter_internal", (helper) => {
-        helper.remove("*", `<buffer=${bufnr}>`);
-        helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! G");
-        helper.define(
-          "BufUnload",
-          `<buffer=${bufnr}>`,
-          `call denops#notify('${denops.name}', '${id}', [])`,
-          { once: true },
-        );
-      });
 
       for await (
         const data of chatMessagesStream({
