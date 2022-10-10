@@ -13,8 +13,15 @@ import { formatTime } from "./util.ts";
 
 export async function main(denops: Denops): Promise<void> {
   const [token] = await Promise.all([
-    vars.g.get(denops, "gitter#token", ""),
+    vars.g.get<string>(denops, "gitter#token"),
   ]);
+  if (!token) {
+    await denops.call(
+      "gitter#util#warn",
+      "Parsonal Access Token is not defined",
+    );
+    return;
+  }
   denops.dispatcher = {
     async loadRoom(uri: unknown): Promise<void> {
       const controller = new AbortController();

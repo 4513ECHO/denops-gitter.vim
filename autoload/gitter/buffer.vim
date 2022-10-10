@@ -1,6 +1,10 @@
 let s:name = 'gitter'
 
 function! gitter#buffer#open(uri) abort
+  if empty(get(g:, 'gitter#token', ''))
+    call s:render_error('Parsonal Access Token is not defined')
+    return
+  endif
   let uri = substitute(a:uri, '^gitter://', '', '')
   if uri == 'rooms'
     " TODO: implement this
@@ -13,8 +17,7 @@ function! gitter#buffer#open(uri) abort
     setlocal filetype=gitter
     call denops#notify(s:name, 'loadRoom', [substitute(uri, '\v^room/|/?$', '', 'g')])
   else
-    setlocal bufhidden=wipe buftype=nofile noswapfile
-    call setline(1, 'You accessed wrong named buffer')
+    call s:render_error('You accessed wrong named buffer')
   endif
 endfunction
 
@@ -30,6 +33,12 @@ function! gitter#buffer#update(bufnr, entries) abort
           \ ] + map(split(entry.text, "\n"), { _, val -> '  ' .. val  }))
   endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)
+endfunction
+
+function! s:render_error(msg) abort
+  setlocal filetype=gitter modifiable bufhidden=wipe
+  call setline(1, 'Error: ' .. a:msg)
+  setlocal nomodifiable
 endfunction
 
 function! s:close_input() abort
