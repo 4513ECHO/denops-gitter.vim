@@ -19,12 +19,14 @@ function! gitter#buffer#open(uri) abort
 endfunction
 
 " @param bufnr number
-" @param entries { name: string, text: string, sent: string }[]
+" @param entries { displayName: string, username: string, text: string, sent: string }[]
 function! gitter#buffer#update(bufnr, entries) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
   for entry in a:entries
+    let format = '%s @%-' .. (56 - strdisplaywidth(entry.sent .. entry.displayName)) .. 's|%s|'
     call appendbufline(a:bufnr, '$', [
-          \ '', repeat('-', 80), printf('@%-55s%s', entry.name, entry.sent), ''
+          \ '', repeat('-', 60),
+          \ printf(format, entry.displayName, entry.username, entry.sent), ''
           \ ] + map(split(entry.text, "\n"), { _, val -> '  ' .. val  }))
   endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)

@@ -9,6 +9,7 @@ import {
 import { chatMessagesStream } from "./stream.ts";
 import { convertUriToId } from "./room.ts";
 import { getRoomMessages, sendMedia, sendMessage } from "./message.ts";
+import { formatTime } from "./util.ts";
 
 export async function main(denops: Denops): Promise<void> {
   const [token] = await Promise.all([
@@ -33,9 +34,10 @@ export async function main(denops: Denops): Promise<void> {
       const messages = await getRoomMessages(roomId, token, { limit: 100 });
       const entries = messages.map((msg) => {
         return {
-          name: msg.fromUser.displayName,
+          displayName: msg.fromUser.displayName,
+          username: msg.fromUser.username,
           text: msg.text,
-          sent: msg.sent,
+          sent: formatTime(msg.sent),
         };
       });
       await denops.call("gitter#buffer#update", bufnr, entries);
@@ -64,11 +66,12 @@ export async function main(denops: Denops): Promise<void> {
             signal: controller.signal,
           })
         ) {
-          const { fromUser: { displayName: name }, text, sent } = data;
+          const { fromUser: { displayName, username }, text, sent } = data;
           await denops.call("gitter#buffer#update", bufnr, [{
-            name,
+            displayName,
+            username,
             text,
-            sent,
+            sent: formatTime(sent),
           }]);
         }
       } catch (error: unknown) {
