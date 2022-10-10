@@ -1,5 +1,5 @@
 function! gitter#util#warn(msg) abort
   echohl WarningMsg
-  echomsg a:msg
+  echomsg '[gitter]' a:msg
   echohl NONE
 endfunction

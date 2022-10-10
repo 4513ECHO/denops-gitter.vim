@@ -19,7 +19,7 @@ function! gitter#buffer#open(uri) abort
 endfunction
 
 " @param bufnr number
-" @param entry { name: string, text: string, sent: string }
+" @param entries { name: string, text: string, sent: string }[]
 function! gitter#buffer#update(bufnr, entries) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
   for entry in a:entries

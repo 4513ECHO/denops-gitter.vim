@@ -88,8 +88,9 @@ export async function main(denops: Denops): Promise<void> {
         const resp = await sendMedia({ roomId, token, media });
 
         if (resp.status != 200) {
-          await denops.cmd(
-            `echo 'failed to upload media, response: ${await resp.text()}'`,
+          await denops.call(
+            "gitter#util#warn",
+            `failed to upload media, response: ${await resp.text()}`,
           );
         }
       }
