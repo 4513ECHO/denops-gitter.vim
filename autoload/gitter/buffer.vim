@@ -24,13 +24,13 @@ endfunction
 " @param bufnr number
 " @param entries { displayName: string, username: string, text: string, sent: string }[]
 function! gitter#buffer#update(bufnr, entries) abort
+  let format = ['[%16s] ║ %14s ║ %s', printf('%19s║%16s║ %%s', '', '')]
   call setbufvar(a:bufnr, '&modifiable', v:true)
   for entry in a:entries
-    let format = '%s @%-' .. (56 - strdisplaywidth(entry.sent .. entry.displayName)) .. 's|%s|'
-    call appendbufline(a:bufnr, '$', [
-          \ '', repeat('-', 60),
-          \ printf(format, entry.displayName, entry.username, entry.sent), ''
-          \ ] + map(split(entry.text, "\n"), { _, val -> '  ' .. val  }))
+    let text = split(entry.text, "\n")
+    let lines = [printf(format[0], entry.sent, entry.displayName, text[0])]
+          \ + (len(text) > 1 ? map(text[1:], { _, val -> printf(format[1], val) }) : [])
+    call appendbufline(a:bufnr, '$', lines)
   endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)
 endfunction
