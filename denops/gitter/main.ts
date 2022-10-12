@@ -3,13 +3,14 @@ import * as vars from "https://deno.land/x/denops_std@v3.8.2/variable/mod.ts";
 import * as autocmd from "https://deno.land/x/denops_std@v3.8.2/autocmd/mod.ts";
 import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.ts";
 import {
+  assertNumber,
   assertString,
   ensureString,
 } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
 import { chatMessagesStream } from "./stream.ts";
 import { convertUriToId } from "./room.ts";
 import { getRoomMessages, sendMedia, sendMessage } from "./message.ts";
-import { formatTime } from "./util.ts";
+import { renderMessages } from "./util.ts";
 
 export async function main(denops: Denops): Promise<void> {
   const [token] = await Promise.all([
@@ -31,6 +32,7 @@ export async function main(denops: Denops): Promise<void> {
         denops.call("win_getid"),
         convertUriToId(ensureString(uri), token),
       ]);
+      assertNumber(bufnr);
 
       if (!roomId) {
         await denops.call("gitter#util#warn", "roomId is not found");
@@ -38,16 +40,11 @@ export async function main(denops: Denops): Promise<void> {
       }
 
       // get room's message history at first
-      const messages = await getRoomMessages(roomId, token, { limit: 100 });
-      const entries = messages.map((msg) => {
-        return {
-          displayName: msg.fromUser.displayName,
-          username: msg.fromUser.username,
-          text: msg.text,
-          sent: formatTime(msg.sent),
-        };
-      });
-      await denops.call("gitter#buffer#update", bufnr, entries);
+      await renderMessages(
+        denops,
+        bufnr,
+        await getRoomMessages(roomId, token, { limit: 100 }),
+      );
 
       await Promise.all([
         vars.g.set(denops, "gitter#_parent_winid", winid),
@@ -67,19 +64,13 @@ export async function main(denops: Denops): Promise<void> {
 
       try {
         for await (
-          const data of chatMessagesStream({
+          const message of chatMessagesStream({
             roomId,
             token,
             signal: controller.signal,
           })
         ) {
-          const { fromUser: { displayName, username }, text, sent } = data;
-          await denops.call("gitter#buffer#update", bufnr, [{
-            displayName,
-            username,
-            text,
-            sent: formatTime(sent),
-          }]);
+          await renderMessages(denops, bufnr, [message]);
         }
       } catch (error: unknown) {
         if (error instanceof DOMException && error.name === "AbortError") {
