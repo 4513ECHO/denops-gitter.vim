@@ -9,6 +9,7 @@ export interface Message {
 export interface Room {
   id: string;
   name: string;
+  topic: string;
   uri: string;
 }
 

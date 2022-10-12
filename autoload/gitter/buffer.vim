@@ -7,7 +7,8 @@ function! gitter#buffer#open(uri) abort
   endif
   let uri = substitute(a:uri, '^gitter://', '', '')
   if uri == 'rooms'
-    call s:render_error('This feature is not implemented yet')
+    setlocal filetype=gitter-rooms
+    call denops#notify(s:name, 'selectRooms', [])
   elseif uri =~ '^input/[A-Za-z0-9]\+$'
     setlocal bufhidden=wipe buftype=acwrite noswapfile filetype=markdown
     autocmd gitter_internal BufWriteCmd <buffer> setlocal nomodified
@@ -27,11 +28,26 @@ function! gitter#buffer#update(bufnr, entries) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
   for entry in a:entries
     let text = split(entry.text, "\n")
-    let lines = [printf(format[0], entry.sent, entry.displayName, text[0])]
+    let lines = [printf(format[0], entry.sent, s:truncate(entry.displayName, 14), text[0])]
           \ + (len(text) > 1 ? map(text[1:], { _, val -> printf(format[1], val) }) : [])
     call appendbufline(a:bufnr, '$', lines)
   endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)
+endfunction
+
+" @param bufnr number
+" @param rooms { name: string, topic: string }[]
+function! gitter#buffer#render_rooms(bufnr, rooms) abort
+  call setbufvar(a:bufnr, '&modifiable', v:true)
+  call setbufline(a:bufnr, 1, map(a:rooms,
+        \ { _, val -> printf('%-24s ║ %s', s:truncate(val.name, 24), val.topic) }))
+  call setbufvar(a:bufnr, '&modifiable', v:false)
+endfunction
+
+function! s:truncate(str, width) abort
+  return strdisplaywidth(a:str) < a:width
+        \ ? a:str
+        \ : '...' .. strcharpart(a:str, 0, a:width - 3)
 endfunction
 
 function! s:render_error(msg) abort

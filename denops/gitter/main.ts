@@ -8,7 +8,7 @@ import {
   ensureString,
 } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
 import { chatMessagesStream } from "./stream.ts";
-import { convertUriToId } from "./room.ts";
+import { convertUriToId, getRooms } from "./room.ts";
 import { getRoomMessages, sendMedia, sendMessage } from "./message.ts";
 import { renderMessages } from "./util.ts";
 
@@ -113,6 +113,16 @@ export async function main(denops: Denops): Promise<void> {
         roomId: ensureString(roomId),
         text: ensureString(text),
       });
+    },
+    async selectRooms(): Promise<void> {
+      const [bufnr, rooms] = await Promise.all([
+        denops.call("bufnr"),
+        getRooms(token),
+      ]);
+      await Promise.all([
+        denops.call("gitter#buffer#render_rooms", bufnr, rooms),
+        vars.b.set(denops, "_gitter", { rooms }),
+      ]);
     },
   };
 }
