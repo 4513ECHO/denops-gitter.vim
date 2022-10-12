@@ -4,7 +4,8 @@ endif
 let b:did_ftplugin = v:true
 
 setlocal bufhidden=hide noswapfile nomodifiable buftype=nofile
-setlocal nolist nonumber norelativenumber signcolumn=no foldcolumn=0
+setlocal nolist nonumber norelativenumber signcolumn=no nofoldenable
+setlocal breakindent showbreak=NONE
 
 " TODO: provide plugin mapping
 nnoremap <buffer> <Plug>(gitter:input:open) <Cmd>call <SID>open_input()<CR>

@@ -7,8 +7,7 @@ function! gitter#buffer#open(uri) abort
   endif
   let uri = substitute(a:uri, '^gitter://', '', '')
   if uri == 'rooms'
-    " TODO: implement this
-    call denops#notify(s:name, 'selectRooms', [])
+    call s:render_error('This feature is not implemented yet')
   elseif uri =~ '^input/[A-Za-z0-9]\+$'
     setlocal bufhidden=wipe buftype=acwrite noswapfile filetype=markdown
     autocmd gitter_internal BufWriteCmd <buffer> setlocal nomodified
