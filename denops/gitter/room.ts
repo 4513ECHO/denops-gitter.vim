@@ -1,4 +1,4 @@
-import type { Room } from "./types.d.ts";
+import type { Room } from "./types.ts";
 
 const cache = new Map<string, string>();
 

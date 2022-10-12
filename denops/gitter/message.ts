@@ -1,4 +1,4 @@
-import type { Message } from "./types.d.ts";
+import type { Message } from "./types.ts";
 
 export interface SendMessageOptions {
   token: string;

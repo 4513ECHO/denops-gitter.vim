@@ -1,5 +1,5 @@
 import type { Denops } from "https://deno.land/x/denops_std@v3.8.2/mod.ts";
-import type { Message } from "./types.d.ts";
+import type { Message } from "./types.ts";
 import { datetime } from "https://deno.land/x/ptera@v1.0.2/mod.ts";
 
 export async function renderMessages(
