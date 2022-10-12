@@ -48,12 +48,22 @@ export async function main(denops: Denops): Promise<void> {
 
       await Promise.all([
         vars.g.set(denops, "gitter#_parent_winid", winid),
-        vars.b.set(denops, "_gitter", { bufnr, roomId, uri }),
-        denops.cmd("normal! G"),
+        vars.b.set(denops, "_gitter", { roomId, uri, messages: [] }),
+        denops.cmd("normal! Gz-"),
         denops.meta.host === "vim" && denops.cmd("redraw"),
         autocmd.group(denops, "gitter_internal", (helper) => {
           helper.remove("*", `<buffer=${bufnr}>`);
-          helper.define("TextChanged", `<buffer=${bufnr}>`, "normal! G");
+          helper.define(
+            "TextChanged",
+            `<buffer=${bufnr}>`,
+            "if line('.') == line('w$') | normal! Gz- | endif",
+          );
+          helper.define(
+            "WinClosed",
+            `${winid}`,
+            "unlet g:gitter#_parent_winid",
+            { once: true },
+          );
           helper.define(
             "BufUnload",
             `<buffer=${bufnr}>`,
