@@ -3,7 +3,7 @@ if exists('b:did_ftplugin')
 endif
 let b:did_ftplugin = v:true
 
-setlocal bufhidden=hide noswapfile nomodifiable buftype=nofile
+setlocal bufhidden=wipe noswapfile nomodifiable buftype=nofile
 setlocal nolist nonumber norelativenumber signcolumn=no nofoldenable
 
 " TODO: provide plugin mapping
