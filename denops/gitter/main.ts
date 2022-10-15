@@ -56,7 +56,7 @@ export async function main(denops: Denops): Promise<void> {
           helper.define(
             "TextChanged",
             `<buffer=${bufnr}>`,
-            "if line('.') == line('w$') | normal! Gz- | endif",
+            "if line('.') == line('w$') | execute 'normal! Gz-' | endif",
           );
           helper.define(
             "WinClosed",
