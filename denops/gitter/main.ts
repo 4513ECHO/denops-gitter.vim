@@ -54,17 +54,15 @@ export async function main(denops: Denops): Promise<void> {
       await Promise.all([
         denops.cmd("normal! Gz-"),
         denops.meta.host === "vim" && denops.cmd("redraw"),
+        denops.meta.host === "nvim"
+          ? denops.call("gitter#buffer#attach_buf", bufnr)
+          : denops.call("listener_add", "gitter#buffer#move_cursor", bufnr),
         autocmd.group(denops, "gitter_internal", (helper) => {
           helper.remove("*", `<buffer=${bufnr}>`);
           helper.define(
-            "TextChanged",
-            `<buffer=${bufnr}>`,
-            "if line('.') == line('w$') | execute 'normal! Gz-' | endif",
-          );
-          helper.define(
             "WinClosed",
             `${winid}`,
-            "unlet g:gitter#_parent_winid",
+            "unlet! g:gitter#_parent_winid",
             { once: true },
           );
           helper.define(

@@ -45,6 +45,20 @@ function! gitter#buffer#render_messages(bufnr, entries) abort
   call setbufvar(a:bufnr, '&modifiable', v:false)
 endfunction
 
+function! gitter#buffer#attach_buf(bufnr) abort
+  call luaeval('vim.api.nvim_buf_attach(_A, false, { on_lines = function()'
+        \ .. 'vim.defer_fn(vim.fn["gitter#buffer#move_cursor"], 10)'
+        \ .. 'end })',
+        \ a:bufnr)
+endfunction
+
+function! gitter#buffer#move_cursor(...) abort
+  let winid = get(g:, 'gitter#_parent_winid', 0)
+  if winid && line('.', winid) == line('w$', winid)
+    call win_execute(winid, "execute 'normal! Gz-' | redraw")
+  endif
+endfunction
+
 " @param bufnr number
 " @param rooms { name: string, topic: string }[]
 function! gitter#buffer#render_rooms(bufnr, rooms) abort
