@@ -2,6 +2,7 @@ import type { Denops } from "https://deno.land/x/denops_std@v3.8.2/mod.ts";
 import * as vars from "https://deno.land/x/denops_std@v3.8.2/variable/mod.ts";
 import * as autocmd from "https://deno.land/x/denops_std@v3.8.2/autocmd/mod.ts";
 import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.ts";
+import * as batch from "https://deno.land/x/denops_std@v3.8.2/batch/mod.ts";
 import {
   assertNumber,
   assertString,
