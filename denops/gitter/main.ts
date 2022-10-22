@@ -39,6 +39,10 @@ export async function main(denops: Denops): Promise<void> {
         return;
       }
 
+      await batch.batch(denops, async (denops) => {
+        await vars.b.set(denops, "_gitter", { roomId, uri, messages: [] });
+        await vars.g.set(denops, "gitter#_parent_winid", winid);
+      });
       // get room's message history at first
       await renderMessages(
         denops,
@@ -47,8 +51,6 @@ export async function main(denops: Denops): Promise<void> {
       );
 
       await Promise.all([
-        vars.g.set(denops, "gitter#_parent_winid", winid),
-        vars.b.set(denops, "_gitter", { roomId, uri, messages: [] }),
         denops.cmd("normal! Gz-"),
         denops.meta.host === "vim" && denops.cmd("redraw"),
         autocmd.group(denops, "gitter_internal", (helper) => {

@@ -20,15 +20,27 @@ function! gitter#buffer#open(uri) abort
 endfunction
 
 " @param bufnr number
-" @param entries { displayName: string, username: string, text: string, sent: string }[]
-function! gitter#buffer#update(bufnr, entries) abort
+" @param entries { username: string, text: string, sent: string, id: string, }[]
+function! gitter#buffer#render_messages(bufnr, entries) abort
   let format = ['[%16s] ║ %14s ║ %s', printf('%19s║%16s║ %%s', '', '')]
   call setbufvar(a:bufnr, '&modifiable', v:true)
   for entry in a:entries
     let text = split(entry.text, "\n")
-    let lines = [printf(format[0], entry.sent, s:truncate(entry.displayName, 14), text[0])]
+    let lines = [printf(format[0], entry.sent, s:truncate(entry.username, 14), text[0])]
           \ + (len(text) > 1 ? map(text[1:], { _, val -> printf(format[1], val) }) : [])
-    call appendbufline(a:bufnr, '$', lines)
+    let lastline = line('$', g:gitter#_parent_winid)
+    call setbufline(a:bufnr, lastline + 1, lines)
+    " update b:_gitter
+    let _gitter = getbufvar(a:bufnr, '_gitter')
+    call setbufvar(a:bufnr, '_gitter',
+          \ extend(_gitter, {
+          \ 'messages': add(
+          \   _gitter.messages,
+          \   extend(entry, {
+          \     'position': {'start': lastline + 1, 'end': lastline + len(lines)},
+          \     'lines': lines
+          \   })
+          \ )}))
   endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)
 endfunction
@@ -45,7 +57,7 @@ endfunction
 function! s:truncate(str, width) abort
   return strdisplaywidth(a:str) < a:width
         \ ? a:str
-        \ : '...' .. strcharpart(a:str, 0, a:width - 3)
+        \ : strcharpart(a:str, 0, a:width - strdisplaywidth('… ')) .. '… '
 endfunction
 
 function! s:render_error(msg) abort

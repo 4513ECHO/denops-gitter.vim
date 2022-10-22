@@ -8,11 +8,12 @@ export async function renderMessages(
   messages: Message[],
 ): Promise<void> {
   await denops.call(
-    "gitter#buffer#update",
+    "gitter#buffer#render_messages",
     bufnr,
     messages.map((msg) => ({
-      displayName: msg.fromUser.displayName,
+      username: msg.fromUser.displayName,
       text: msg.text,
+      id: msg.id,
       sent: datetime(msg.sent, { timezone: "UTC" })
         .toLocal()
         .format("YYYY-MM-dd HH:mm"),
