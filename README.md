@@ -20,7 +20,7 @@ You have to set your parsonal access token to `g:gitter#token`.
 let g:gitter#token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 ```
 
-Open `gitter://room/:owner/:repo` to start chating.
+Open `gitter://room/{owner}/{repo}` to start chating.
 
 ```vim
 new gitter://room/gitter/api

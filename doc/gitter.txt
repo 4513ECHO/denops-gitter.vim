@@ -1,0 +1,91 @@
+*gitter.txt*				Gitter client for vim written in denops
+
+Author: Hibiki <4513echo@gmail.com>
+License: MIT License
+URL: https://github.com/4513ECHO/denops-gitter.vim
+Last change: 2022 Oct 22
+
+==============================================================================
+CONTENTS						*gitter-contents*
+
+Introduction						|gitter-introduction|
+Requirements						|gitter-requirements|
+Interface						|gitter-interface|
+  Variables						|gitter-variables|
+  Buffers						|gitter-buffers|
+  Mappings						|gitter-mappings|
+About							|gitter-about|
+
+==============================================================================
+INTRODUCTION						*gitter-introduction*
+
+*gitter* or *denops-gitter.vim* is a https://gitter.im client for vim.
+This plugin is implemented with |denops.vim|.
+
+==============================================================================
+REQUIREMENTS						*gitter-requirements*
+
+- |denops.vim| (https://github.com/vim-denops/denops.vim)
+- Personal Access Token for Gitter
+
+Please get the token from https://developer.gitter.im/login, and set it to
+|g:gitter#token|.
+
+>
+	let g:gitter#token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+<
+
+==============================================================================
+INTERFACE						*gitter-interface*
+
+------------------------------------------------------------------------------
+VARIABLES						*gitter-variables*
+
+*g:gitter#token*
+		|String| (default: undefined)
+	Your personal access token for Gitter.
+	This must be set before denops.vim initialization.
+
+*g:gitter#send_on_write*
+		|Boolean| (default: |v:false|)
+	If this set true, |gitter-buffer-input| will send the content of the
+	buffer each the buffer is saved.
+	After sending, the content will be cleared.
+
+------------------------------------------------------------------------------
+BUFFERS							*gitter-buffers*
+
+gitter://rooms						*gitter-buffer-rooms*
+
+gitter://room/{owner}/{repo}				*gitter-buffer-room*
+
+gitter://input/{roomId}					*gitter-buffer-input*
+
+------------------------------------------------------------------------------
+MAPPINGS						*gitter-mappings*
+
+Available on |gitter-buffer-rooms|			*gitter-mappings-rooms*
+
+*<Plug>(gitter:enter_room)*	<CR>
+
+Available on |gitter-buffer-room|			*gitter-mappings-room*
+
+*<Plug>(gitter:input:open)*	i
+*<Plug>(gitter:media:add)*	ma
+
+Available on |gitter-buffer-input|			*gitter-mappings-input*
+
+|:close|!				q
+*<Plug>(gitter:input:send_and_clear)*	<Nop>
+*<Plug>(gitter:input:send_and_close)*	<Nop>
+
+==============================================================================
+ABOUT							*gitter-about*
+
+|gitter| is developed by Hibiki(4513ECHO) and licensed under the MIT License.
+Visit the project page for the latest version:
+
+	https://github.com/4513ECHO/denops-gitter.vim
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:
