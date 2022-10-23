@@ -8,12 +8,13 @@ function! gitter#buffer#open(uri) abort
   let uri = substitute(a:uri, '^gitter://', '', '')
   if uri == 'rooms'
     setlocal filetype=gitter-rooms
-    call denops#notify(s:name, 'selectRooms', [])
+    call denops#notify(s:name, 'selectRooms', [bufnr()])
   elseif uri =~ '^input/[A-Za-z0-9]\+$'
     setlocal filetype=markdown.gitter-input
   elseif uri =~ '\v^room/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/?$'
     setlocal filetype=gitter
-    call denops#notify(s:name, 'loadRoom', [substitute(uri, '\v^room/|/?$', '', 'g')])
+    call denops#notify(s:name, 'loadRoom',
+          \ [substitute(uri, '\v^room/|/?$', '', 'g'), bufnr(), win_getid()])
   else
     call s:render_error('You accessed wrong named buffer')
   endif
@@ -87,6 +88,7 @@ function! gitter#buffer#attach_buf(bufnr) abort
         \ a:bufnr)
 endfunction
 
+" NOTE: this has variable length arguments because it is used for callback
 function! gitter#buffer#move_cursor(...) abort
   let winid = get(g:, 'gitter#_parent_winid', 0)
   if winid && line('.', winid) == line('w$', winid)

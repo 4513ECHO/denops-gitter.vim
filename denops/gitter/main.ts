@@ -4,6 +4,7 @@ import * as autocmd from "https://deno.land/x/denops_std@v3.8.2/autocmd/mod.ts";
 import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.ts";
 import * as batch from "https://deno.land/x/denops_std@v3.8.2/batch/mod.ts";
 import * as helper from "https://deno.land/x/denops_std@v3.8.2/helper/mod.ts";
+import * as fn from "https://deno.land/x/denops_std@v3.8.2/function/mod.ts";
 import {
   assertNumber,
   assertString,
@@ -26,15 +27,15 @@ export async function main(denops: Denops): Promise<void> {
     return;
   }
   denops.dispatcher = {
-    async loadRoom(uri: unknown): Promise<void> {
+    async loadRoom(
+      uri: unknown,
+      bufnr: unknown,
+      winid: unknown,
+    ): Promise<void> {
+      assertNumber(bufnr);
       const controller = new AbortController();
       const [id] = anonymous.once(denops, () => controller.abort());
-      const [bufnr, winid, roomId] = await Promise.all([
-        denops.call("bufnr"),
-        denops.call("win_getid"),
-        convertUriToId(ensureString(uri), token),
-      ]);
-      assertNumber(bufnr);
+      const roomId = await convertUriToId(ensureString(uri), token);
 
       if (!roomId) {
         await denops.call("gitter#util#warn", "roomId is not found");
@@ -108,7 +109,7 @@ export async function main(denops: Denops): Promise<void> {
       });
       if (file) {
         const media = await Deno.readFile(
-          await denops.call("expand", file) as string,
+          ensureString(await fn.expand(denops, file)),
         );
         const resp = await sendMedia({ roomId, token, media });
 
@@ -125,11 +126,8 @@ export async function main(denops: Denops): Promise<void> {
       assertString(text);
       await sendMessage({ token, roomId, text });
     },
-    async selectRooms(): Promise<void> {
-      const [bufnr, rooms] = await Promise.all([
-        denops.call("bufnr"),
-        getRooms(token),
-      ]);
+    async selectRooms(bufnr: unknown): Promise<void> {
+      const rooms = await getRooms(token);
       await Promise.all([
         denops.call("gitter#buffer#render_rooms", bufnr, rooms),
         vars.b.set(denops, "_gitter", { rooms }),
