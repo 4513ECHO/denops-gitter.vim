@@ -36,17 +36,19 @@ function! gitter#buffer#render_messages(bufnr, entries, ...) abort
     if get(a:000, 0, v:false)
       call deletebufline(a:bufnr, entry.position.start, entry.position.end)
       call appendbufline(a:bufnr, entry.position.start - 1, lines)
-      " update b:_gitter
-      if (entry.position.end - entry.position.start + 1) != len(lines)
+      if len(lines) != (entry.position.end - entry.position.start + 1)
+        " update b:_gitter
+        let inc = len(lines) - (entry.position.end - entry.position.start + 1)
         let _gitter = getbufvar(a:bufnr, '_gitter')
         call setbufvar(a:bufnr, '_gitter',
               \ extend(_gitter, {
               \ 'messages': map(
               \   _gitter.messages,
-              \   { _, val -> val.id ==# entry.id ? extend(val, {
-              \    'position': {'start': val.position.start,
-              \                 'end': val.position.start + len(lines) - 1},
-              \     }) : val }
+              \   { _, val -> val.position.start >= entry.position.start
+              \   ? extend(val, {'position': {
+              \       'start': val.position.start + inc,
+              \       'end': val.position.end + inc,
+              \     }}) : val }
               \ )}))
       endif
       return
