@@ -3,6 +3,7 @@ import * as vars from "https://deno.land/x/denops_std@v3.8.2/variable/mod.ts";
 import * as autocmd from "https://deno.land/x/denops_std@v3.8.2/autocmd/mod.ts";
 import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.ts";
 import * as batch from "https://deno.land/x/denops_std@v3.8.2/batch/mod.ts";
+import * as helper from "https://deno.land/x/denops_std@v3.8.2/helper/mod.ts";
 import {
   assertNumber,
   assertString,
@@ -93,7 +94,10 @@ export async function main(denops: Denops): Promise<void> {
     },
     async sendMedia(roomId: unknown): Promise<void> {
       assertString(roomId);
-      const file = await denops.call("input", "media: ", "", "file") as string;
+      const file = await helper.input(denops, {
+        prompt: "media: ",
+        completion: "file",
+      });
       if (file) {
         const media = await Deno.readFile(
           await denops.call("expand", file) as string,
@@ -109,11 +113,9 @@ export async function main(denops: Denops): Promise<void> {
       }
     },
     async sendMessage(roomId: unknown, text: unknown): Promise<void> {
-      await sendMessage({
-        token,
-        roomId: ensureString(roomId),
-        text: ensureString(text),
-      });
+      assertString(roomId);
+      assertString(text);
+      await sendMessage({ token, roomId, text });
     },
     async selectRooms(): Promise<void> {
       const [bufnr, rooms] = await Promise.all([
