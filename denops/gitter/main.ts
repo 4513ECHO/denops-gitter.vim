@@ -128,6 +128,9 @@ export async function main(denops: Denops): Promise<void> {
         denops.call("gitter#buffer#render_rooms", bufnr, rooms),
         vars.b.set(denops, "_gitter", { rooms }),
       ]);
+      if (denops.meta.host === "vim") {
+        await denops.cmd("redraw");
+      }
     },
   };
 }
