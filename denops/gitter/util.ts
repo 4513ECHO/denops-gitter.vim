@@ -21,3 +21,20 @@ export async function renderMessages(
     })),
   );
 }
+
+export async function spinner<T>(denops: Denops, fn: () => T): Promise<T> {
+  const timer = await denops.call("gitter#util#spinner");
+  return Promise.resolve(fn())
+    .then((value) => {
+      denops.call("timer_stop", timer);
+      return value;
+    })
+    .then((value) => {
+      denops.cmd("echo 'Done!' | redraw");
+      return value;
+    })
+    .then((value) => {
+      setTimeout(() => denops.cmd("echo '' | redraw"), 800);
+      return value;
+    });
+}
