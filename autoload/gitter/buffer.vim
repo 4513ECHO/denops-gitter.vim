@@ -21,7 +21,8 @@ endfunction
 
 " @param bufnr number
 " @param entries { username: string, text: string, sent: string, id: string, thread: number }[]
-function! gitter#buffer#render_messages(bufnr, entries) abort
+" @param rerender? boolean
+function! gitter#buffer#render_messages(bufnr, entries, ...) abort
   let format = ['[%16s] ║ %14s ║ %s', printf('%19s║%16s║ %%s', '', '')]
   call setbufvar(a:bufnr, '&modifiable', v:true)
   for entry in a:entries
@@ -32,6 +33,24 @@ function! gitter#buffer#render_messages(bufnr, entries) abort
           \   ? [printf(format[1], '↳ ' .. entry.thread ..
           \     ' repl' .. (entry.thread == 1 ? 'y' : 'ies'))]
           \   : [])
+    if get(a:000, 0, v:false)
+      call deletebufline(a:bufnr, entry.position.start, entry.position.end)
+      call appendbufline(a:bufnr, entry.position.start - 1, lines)
+      " update b:_gitter
+      if (entry.position.end - entry.position.start + 1) != len(lines)
+        let _gitter = getbufvar(a:bufnr, '_gitter')
+        call setbufvar(a:bufnr, '_gitter',
+              \ extend(_gitter, {
+              \ 'messages': map(
+              \   _gitter.messages,
+              \   { _, val -> val.id ==# entry.id ? extend(val, {
+              \    'position': {'start': val.position.start,
+              \                 'end': val.position.start + len(lines) - 1},
+              \     }) : val }
+              \ )}))
+      endif
+      return
+    endif
     let lastline = line('$', g:gitter#_parent_winid)
     call setbufline(a:bufnr, lastline + 1, lines)
     " update b:_gitter
@@ -46,6 +65,17 @@ function! gitter#buffer#render_messages(bufnr, entries) abort
           \ )}))
   endfor
   call setbufvar(a:bufnr, '&modifiable', v:false)
+endfunction
+
+" @param bufnr number
+" @param parentId string
+function! gitter#buffer#increment_thread(bufnr, parentId) abort
+  let parent = get(filter(copy(getbufvar(a:bufnr, '_gitter').messages),
+        \ { _, val -> val.id ==# a:parentId }), 0, {})
+  if !empty(parent)
+    call gitter#buffer#render_messages(a:bufnr,
+          \ [extend(parent, {'thread': parent.thread + 1})], v:true)
+  endif
 endfunction
 
 function! gitter#buffer#attach_buf(bufnr) abort

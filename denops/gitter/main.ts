@@ -83,7 +83,13 @@ export async function main(denops: Denops): Promise<void> {
             signal: controller.signal,
           })
         ) {
-          if (!message.parentId) {
+          if (message.parentId) {
+            await denops.call(
+              "gitter#buffer#increment_thread",
+              bufnr,
+              message.parentId,
+            );
+          } else {
             await renderMessages(denops, bufnr, [message]);
           }
         }
