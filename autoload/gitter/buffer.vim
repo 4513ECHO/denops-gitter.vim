@@ -20,7 +20,7 @@ function! gitter#buffer#open(uri) abort
 endfunction
 
 " @param bufnr number
-" @param entries { username: string, text: string, sent: string, id: string, }[]
+" @param entries { username: string, text: string, sent: string, id: string, thread: number }[]
 function! gitter#buffer#render_messages(bufnr, entries) abort
   let format = ['[%16s] ║ %14s ║ %s', printf('%19s║%16s║ %%s', '', '')]
   call setbufvar(a:bufnr, '&modifiable', v:true)
@@ -28,6 +28,10 @@ function! gitter#buffer#render_messages(bufnr, entries) abort
     let text = split(entry.text, "\n")
     let lines = [printf(format[0], entry.sent, s:truncate(entry.username, 14), text[0])]
           \ + (len(text) > 1 ? map(text[1:], { _, val -> printf(format[1], val) }) : [])
+          \ + (entry.thread > 0
+          \   ? [printf(format[1], '↳ ' .. entry.thread ..
+          \     ' repl' .. (entry.thread == 1 ? 'y' : 'ies'))]
+          \   : [])
     let lastline = line('$', g:gitter#_parent_winid)
     call setbufline(a:bufnr, lastline + 1, lines)
     " update b:_gitter
@@ -38,7 +42,6 @@ function! gitter#buffer#render_messages(bufnr, entries) abort
           \   _gitter.messages,
           \   extend(entry, {
           \     'position': {'start': lastline + 1, 'end': lastline + len(lines)},
-          \     'lines': lines
           \   })
           \ )}))
   endfor

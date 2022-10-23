@@ -14,6 +14,7 @@ export async function renderMessages(
       username: msg.fromUser.displayName,
       text: msg.text,
       id: msg.id,
+      thread: msg.threadMessageCount ?? 0,
       sent: datetime(msg.sent, { timezone: "UTC" })
         .toLocal()
         .format("YYYY-MM-dd HH:mm"),

@@ -3,6 +3,7 @@ export interface Message {
   text: string;
   sent: string;
   threadMessageCount?: number;
+  parentId?: string;
   fromUser: User;
 }
 

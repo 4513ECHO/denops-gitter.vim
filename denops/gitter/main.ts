@@ -83,7 +83,9 @@ export async function main(denops: Denops): Promise<void> {
             signal: controller.signal,
           })
         ) {
-          await renderMessages(denops, bufnr, [message]);
+          if (!message.parentId) {
+            await renderMessages(denops, bufnr, [message]);
+          }
         }
       } catch (error: unknown) {
         if (error instanceof DOMException && error.name === "AbortError") {
