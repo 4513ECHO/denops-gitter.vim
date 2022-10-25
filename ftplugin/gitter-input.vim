@@ -3,7 +3,7 @@ if exists('b:did_ftplugin') && &filetype !~# 'markdown'
 endif
 let b:did_ftplugin = v:true
 
-setlocal bufhidden=wipe buftype=acwrite noswapfile
+setlocal bufhidden=wipe buftype=acwrite noswapfile winfixheight
 
 augroup gitter_input_internal
   autocmd! * <buffer>
@@ -38,7 +38,7 @@ endfunction
 
 function! s:send() abort
   call denops#notify('gitter', 'sendMessage', [
-        \ matchstr(bufname(), '^gitter://input/\zs[A-Za-z0-9]\+$'),
+        \ matchstr(bufname(), '^gitter://input/\zs\x\+$'),
         \ join(getline(1, '$'), "\n")
         \ ])
 endfunction

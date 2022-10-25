@@ -1,22 +1,22 @@
 let s:name = 'gitter'
 
 function! gitter#buffer#open(uri) abort
-  if empty(get(g:, 'gitter#token', ''))
-    call s:render_error('Parsonal Access Token is not defined')
+  if type(get(g:, 'gitter#token', v:null)) != v:t_string
+    call gitter#util#warn('Parsonal Access Token is invalid')
     return
   endif
   let uri = substitute(a:uri, '^gitter://', '', '')
   if uri == 'rooms'
     setlocal filetype=gitter-rooms
     call denops#notify(s:name, 'selectRooms', [bufnr()])
-  elseif uri =~ '^input/[A-Za-z0-9]\+$'
+  elseif uri =~# '^input/\x\+$'
     setlocal filetype=markdown.gitter-input
-  elseif uri =~ '\v^room/[A-Za-z0-9_-]+/[A-Za-z0-9_-]+/?$'
+  elseif uri =~# '^room/[A-Za-z0-9_.-]\+/[A-Za-z0-9_.-]\+$'
     setlocal filetype=gitter
     call denops#notify(s:name, 'loadRoom',
-          \ [substitute(uri, '\v^room/|/?$', '', 'g'), bufnr(), win_getid()])
+          \ [substitute(uri, '^room/', '', 'g'), bufnr(), win_getid()])
   else
-    call s:render_error('You accessed wrong named buffer')
+    call gitter#util#warn('You accessed wrong named buffer')
   endif
 endfunction
 
@@ -117,10 +117,4 @@ function! s:truncate(str, width) abort
   return strdisplaywidth(a:str) < a:width
         \ ? a:str
         \ : strcharpart(a:str, 0, a:width - strdisplaywidth('… ')) .. '… '
-endfunction
-
-function! s:render_error(msg) abort
-  setlocal filetype=gitter modifiable bufhidden=wipe
-  call setline(1, 'Error: ' .. a:msg)
-  setlocal nomodifiable
 endfunction
