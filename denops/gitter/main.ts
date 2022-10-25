@@ -45,23 +45,26 @@ export async function main(denops: Denops): Promise<void> {
       await batch.batch(denops, async (denops) => {
         await vars.b.set(denops, "_gitter", { roomId, uri, messages: [] });
         await vars.g.set(denops, "gitter#_parent_winid", winid);
-      });
-      // get room's message history at first
-      await spinner(denops, "Loading messages", async () => {
-        await renderMessages(
-          denops,
-          bufnr,
-          await getRoomMessages(roomId, token, { limit: 100 }),
-        );
-      });
-
-      await Promise.all([
-        denops.cmd("normal! Gz-"),
-        denops.meta.host === "vim" && denops.cmd("redraw"),
-        denops.meta.host === "nvim"
-          ? denops.call("gitter#buffer#attach_buf", bufnr)
-          : denops.call("listener_add", "gitter#buffer#move_cursor", bufnr),
-        autocmd.group(denops, "gitter_internal", (helper) => {
+        // get room's message history at first
+        await spinner(denops, "Loading messages", async () => {
+          await renderMessages(
+            denops,
+            bufnr,
+            await getRoomMessages(roomId, token, { limit: 100 }),
+          );
+        });
+        await denops.cmd("normal! Gz-");
+        if (denops.meta.host === "vim") {
+          await denops.cmd("redraw");
+          await denops.call(
+            "listener_add",
+            "gitter#buffer#move_cursor",
+            bufnr,
+          );
+        } else {
+          await denops.call("gitter#buffer#attach_buf", bufnr);
+        }
+        await autocmd.group(denops, "gitter_internal", (helper) => {
           helper.remove("*", `<buffer=${bufnr}>`);
           helper.define(
             "WinClosed",
@@ -75,8 +78,8 @@ export async function main(denops: Denops): Promise<void> {
             `call denops#notify('${denops.name}', '${id}', [])`,
             { once: true },
           );
-        }),
-      ]);
+        });
+      });
 
       try {
         for await (
@@ -137,13 +140,13 @@ export async function main(denops: Denops): Promise<void> {
       );
     },
     async selectRooms(bufnr: unknown): Promise<void> {
-      const rooms = await getRooms(token);
-      await spinner(
-        denops,
-        "Loading rooms",
-        () => denops.call("gitter#buffer#render_rooms", bufnr, rooms),
-      );
       await batch.batch(denops, async (denops) => {
+        const rooms = await getRooms(token);
+        await spinner(
+          denops,
+          "Loading rooms",
+          () => denops.call("gitter#buffer#render_rooms", bufnr, rooms),
+        );
         await vars.b.set(denops, "_gitter", { rooms });
         if (denops.meta.host === "vim") {
           await denops.cmd("redraw");
