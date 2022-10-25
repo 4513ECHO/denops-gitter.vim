@@ -1,10 +1,10 @@
-import type { Denops } from "https://deno.land/x/denops_std@v3.8.2/mod.ts";
-import * as vars from "https://deno.land/x/denops_std@v3.8.2/variable/mod.ts";
-import * as autocmd from "https://deno.land/x/denops_std@v3.8.2/autocmd/mod.ts";
-import * as anonymous from "https://deno.land/x/denops_std@v3.8.2/anonymous/mod.ts";
-import * as batch from "https://deno.land/x/denops_std@v3.8.2/batch/mod.ts";
-import * as helper from "https://deno.land/x/denops_std@v3.8.2/helper/mod.ts";
-import * as fn from "https://deno.land/x/denops_std@v3.8.2/function/mod.ts";
+import type { Denops } from "https://deno.land/x/denops_std@v3.9.1/mod.ts";
+import * as vars from "https://deno.land/x/denops_std@v3.9.1/variable/mod.ts";
+import * as autocmd from "https://deno.land/x/denops_std@v3.9.1/autocmd/mod.ts";
+import * as anonymous from "https://deno.land/x/denops_std@v3.9.1/anonymous/mod.ts";
+import * as batch from "https://deno.land/x/denops_std@v3.9.1/batch/mod.ts";
+import * as helper from "https://deno.land/x/denops_std@v3.9.1/helper/mod.ts";
+import * as fn from "https://deno.land/x/denops_std@v3.9.1/function/mod.ts";
 import {
   assertNumber,
   assertString,

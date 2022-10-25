@@ -1,5 +1,5 @@
-import { TextLineStream } from "https://deno.land/std@0.159.0/streams/mod.ts";
-import { JsonParseStream } from "https://deno.land/std@0.159.0/encoding/json/stream.ts";
+import { TextLineStream } from "https://deno.land/std@0.160.0/streams/mod.ts";
+import { JsonParseStream } from "https://deno.land/std@0.160.0/encoding/json/stream.ts";
 import type { Message } from "./types.ts";
 
 export interface ChatMessagesStreamOptions {
