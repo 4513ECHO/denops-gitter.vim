@@ -54,15 +54,9 @@ export async function main(denops: Denops): Promise<void> {
           );
         });
         await denops.cmd("normal! Gz-");
+        await denops.call("gitter#buffer#move_cursor", bufnr);
         if (denops.meta.host === "vim") {
           await denops.cmd("redraw");
-          await denops.call(
-            "listener_add",
-            "gitter#buffer#move_cursor",
-            bufnr,
-          );
-        } else {
-          await denops.call("gitter#buffer#attach_buf", bufnr);
         }
         await autocmd.group(denops, "gitter_internal", (helper) => {
           helper.remove("*", `<buffer=${bufnr}>`);

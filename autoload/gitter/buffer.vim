@@ -81,15 +81,23 @@ function! gitter#buffer#increment_thread(bufnr, parentId) abort
   endif
 endfunction
 
-function! gitter#buffer#attach_buf(bufnr) abort
-  call luaeval('vim.api.nvim_buf_attach(_A, false, { on_lines = function()'
-        \ .. 'vim.defer_fn(vim.fn["gitter#buffer#move_cursor"], 10)'
-        \ .. 'end })',
-        \ a:bufnr)
-endfunction
+if has('nvim')
+  function! gitter#buffer#move_cursor(bufnr) abort
+    " XXX: use vim.defer_fn() to avoid E315, internal error of Vim
+    call luaeval('vim.api.nvim_buf_attach(_A, false, { on_lines = function()'
+          \ .. 'vim.defer_fn(vim.fn["gitter#buffer#move_cursor_callback"], 10)'
+          \ .. 'end })',
+          \ a:bufnr)
+  endfunction
+else
+  function! gitter#buffer#move_cursor(bufnr) abort
+    call listener_add('gitter#buffer#move_cursor_callback', a:bufnr)
+  endfunction
+endif
 
-" NOTE: this has variable length arguments because it is used for callback
-function! gitter#buffer#move_cursor(...) abort
+" NOTE: use variable length arguments because this is called with some
+" unneeded arguments as callback
+function! gitter#buffer#move_cursor_callback(...) abort
   let winid = get(g:, 'gitter#_parent_winid', 0)
   if winid && line('.', winid) == line('w$', winid)
     call win_execute(winid, "execute 'normal! Gz-' | redraw")
