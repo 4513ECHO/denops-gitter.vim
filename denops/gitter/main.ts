@@ -47,7 +47,7 @@ export async function main(denops: Denops): Promise<void> {
         await vars.g.set(denops, "gitter#_parent_winid", winid);
       });
       // get room's message history at first
-      await spinner(denops, async () => {
+      await spinner(denops, "Loading messages", async () => {
         await renderMessages(
           denops,
           bufnr,
@@ -115,6 +115,7 @@ export async function main(denops: Denops): Promise<void> {
         );
         const resp = await spinner(
           denops,
+          "Sending media",
           () => sendMedia({ roomId, token, media }),
         );
 
@@ -129,12 +130,17 @@ export async function main(denops: Denops): Promise<void> {
     async sendMessage(roomId: unknown, text: unknown): Promise<void> {
       assertString(roomId);
       assertString(text);
-      await spinner(denops, () => sendMessage({ token, roomId, text }));
+      await spinner(
+        denops,
+        "Sending message",
+        () => sendMessage({ token, roomId, text }),
+      );
     },
     async selectRooms(bufnr: unknown): Promise<void> {
       const rooms = await getRooms(token);
       await spinner(
         denops,
+        "Loading rooms",
         () => denops.call("gitter#buffer#render_rooms", bufnr, rooms),
       );
       await batch.batch(denops, async (denops) => {

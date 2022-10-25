@@ -22,18 +22,25 @@ export async function renderMessages(
   );
 }
 
-export async function spinner<T>(denops: Denops, fn: () => T): Promise<T> {
-  const timer = await denops.call("gitter#util#spinner");
-  return Promise.resolve(fn())
+const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+// deno-lint-ignore require-await
+export async function spinner<T>(
+  denops: Denops,
+  message: string,
+  callback: () => T,
+): Promise<T> {
+  let count = 0;
+  const timer = setInterval(async () => {
+    await denops.cmd(
+      "echo '[gitter]' spinner message .. '...'",
+      { message, spinner: frames[count % frames.length] },
+    );
+    count++;
+  }, 80);
+  return Promise.resolve(callback())
     .then((value) => {
-      denops.call("timer_stop", timer);
-      return value;
-    })
-    .then((value) => {
-      denops.cmd("echo 'Done!' | redraw");
-      return value;
-    })
-    .then((value) => {
+      clearInterval(timer);
       setTimeout(() => denops.cmd("echo '' | redraw"), 800);
       return value;
     });
