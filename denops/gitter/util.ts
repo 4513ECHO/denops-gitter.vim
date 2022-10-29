@@ -24,7 +24,6 @@ export async function renderMessages(
 
 const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
-// deno-lint-ignore require-await
 export async function spinner<T>(
   denops: Denops,
   message: string,
@@ -38,7 +37,7 @@ export async function spinner<T>(
     );
     count++;
   }, 80);
-  return Promise.resolve(callback())
+  return await Promise.resolve(callback())
     .then((value) => {
       clearInterval(timer);
       setTimeout(() => denops.cmd("echo '' | redraw"), 800);
