@@ -8,7 +8,7 @@ export async function renderMessages(
   messages: Message[],
 ): Promise<void> {
   await denops.call(
-    "gitter#buffer#render_messages",
+    "gitter#renderer#message#append",
     bufnr,
     messages.map((msg) => ({
       username: msg.fromUser.displayName,

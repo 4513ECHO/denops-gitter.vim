@@ -21,7 +21,7 @@ export async function main(denops: Denops): Promise<void> {
   ]);
   if (typeof token !== "string" || !token) {
     await denops.call(
-      "gitter#util#warn",
+      "gitter#general#print_error",
       `Parsonal Access Token is invalid: ${token}`,
     );
     return;
@@ -38,7 +38,7 @@ export async function main(denops: Denops): Promise<void> {
       const roomId = await convertUriToId(ensureString(uri), token);
 
       if (!roomId) {
-        await denops.call("gitter#util#warn", "roomId is not found");
+        await denops.call("gitter#general#print_error", "roomId is not found");
         return;
       }
 
@@ -54,7 +54,11 @@ export async function main(denops: Denops): Promise<void> {
           );
         });
         await denops.cmd("normal! Gz-");
-        await denops.call("gitter#buffer#move_cursor", bufnr);
+        await denops.call(
+          "gitter#general#add_buf_listener",
+          bufnr,
+          "gitter#general#goto_bottom",
+        );
         if (denops.meta.host === "vim") {
           await denops.cmd("redraw");
         }
@@ -85,7 +89,7 @@ export async function main(denops: Denops): Promise<void> {
         ) {
           if (message.parentId) {
             await denops.call(
-              "gitter#buffer#increment_thread",
+              "gitter#renderer#message#increment_thread",
               bufnr,
               message.parentId,
             );
@@ -118,7 +122,7 @@ export async function main(denops: Denops): Promise<void> {
 
         if (resp.status != 200) {
           await denops.call(
-            "gitter#util#warn",
+            "gitter#general#print_error",
             `failed to upload media, response: ${await resp.text()}`,
           );
         }
@@ -139,7 +143,7 @@ export async function main(denops: Denops): Promise<void> {
         await spinner(
           denops,
           "Loading rooms",
-          () => denops.call("gitter#buffer#render_rooms", bufnr, rooms),
+          () => denops.call("gitter#renderer#rooms#render", bufnr, rooms),
         );
         await vars.b.set(denops, "_gitter", { rooms });
         if (denops.meta.host === "vim") {

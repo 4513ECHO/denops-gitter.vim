@@ -5,5 +5,5 @@ let g:loaded_gitter = v:true
 
 augroup gitter_internal
   autocmd!
-  autocmd BufReadCmd gitter://* call gitter#buffer#open(expand('<amatch>'))
+  autocmd BufReadCmd gitter://* call gitter#general#detect_buffer(expand('<amatch>'))
 augroup END
