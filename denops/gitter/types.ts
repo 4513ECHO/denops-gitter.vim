@@ -5,6 +5,7 @@ export interface Message {
   threadMessageCount?: number;
   parentId?: string;
   fromUser: User;
+  unread: boolean;
 }
 
 export interface Room {

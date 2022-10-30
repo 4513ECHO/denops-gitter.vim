@@ -35,6 +35,7 @@ export async function sendMessage(
 export interface GetRoomMessageOptions {
   query?: string;
   limit?: number;
+  beforeId?: string;
 }
 
 export async function getRoomMessages(
@@ -75,25 +76,21 @@ export async function sendMedia(
     },
   );
 
-  const { sig, params } = await resp.json() as {
-    sig: string;
-    params: string;
-  };
+  const { sig, params } = await resp.json() as { sig: string; params: string };
 
-  const uuid = crypto.randomUUID().replace(/-/g, "");
+  const uuid = crypto.randomUUID().replaceAll("-", "");
   const transloadit = await fetch(
     `https://api2.transloadit.com/instances/bored?${uuid}`,
   );
   const { api2_host: host } = await transloadit.json() as { api2_host: string };
 
-  const uploadUrl = `https://${host}/assemblies/${uuid}?redirect=false`;
   const body = new FormData();
   body.append("signature", sig);
   body.append("params", params);
   body.append("file", new Blob([option.media.buffer], { type: "image/png" }));
 
-  return await fetch(uploadUrl, {
+  return await fetch(`https://${host}/assemblies/${uuid}?redirect=false`, {
     method: "POST",
-    body: body,
+    body,
   });
 }
