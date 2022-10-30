@@ -22,7 +22,7 @@ export async function main(denops: Denops): Promise<void> {
   if (typeof token !== "string" || !token) {
     await denops.call(
       "gitter#general#print_error",
-      `Parsonal Access Token is invalid: ${token}`,
+      `Personal Access Token is invalid: ${token}`,
     );
     return;
   }
