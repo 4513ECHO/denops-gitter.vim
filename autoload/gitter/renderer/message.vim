@@ -45,7 +45,7 @@ endfunction
 
 " @param bufnr number
 " @param parentId string
-function! gitter#renderer#message#increment_thread(bufnr, parentId) abort
+function! gitter#renderer#message#increase_thread(bufnr, parentId) abort
   call setbufvar(a:bufnr, '&modifiable', v:true)
   let parent = s:find_by_id(a:parentId)
   if !empty(parent)

@@ -89,7 +89,7 @@ export async function main(denops: Denops): Promise<void> {
         ) {
           if (message.parentId) {
             await denops.call(
-              "gitter#renderer#message#increment_thread",
+              "gitter#renderer#message#increase_thread",
               bufnr,
               message.parentId,
             );
