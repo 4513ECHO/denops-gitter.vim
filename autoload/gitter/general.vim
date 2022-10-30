@@ -54,5 +54,5 @@ endfunction
 function! gitter#general#truncate(str, width) abort
   return strdisplaywidth(a:str) < a:width
         \ ? a:str
-        \ : strcharpart(a:str, 0, a:width - strdisplaywidth('… ')) .. '… '
+        \ : strcharpart(a:str, 0, a:width - strdisplaywidth('…')) .. '…'
 endfunction

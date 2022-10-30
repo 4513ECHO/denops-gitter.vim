@@ -3,7 +3,7 @@
 Author: Hibiki <4513echo@gmail.com>
 License: MIT License
 URL: https://github.com/4513ECHO/denops-gitter.vim
-Last change: 2022 Oct 22
+Last change: 2022 Oct 30
 
 ==============================================================================
 CONTENTS						*gitter-contents*
@@ -13,6 +13,7 @@ Requirements						|gitter-requirements|
 Interface						|gitter-interface|
   Variables						|gitter-variables|
   Buffers						|gitter-buffers|
+  Layout						|gitter-layout|
   Mappings						|gitter-mappings|
 About							|gitter-about|
 
@@ -60,6 +61,28 @@ gitter://rooms						*gitter-buffer-rooms*
 gitter://room/{owner}/{repo}				*gitter-buffer-room*
 
 gitter://input/{roomId}					*gitter-buffer-input*
+
+------------------------------------------------------------------------------
+LAYOUT							*gitter-layout*
+
+example:
+
+>
+	[2022-11-11 11:11] ║       John Doe ║ Hello everyone
+	                   ║                ║ This message is from Vim
+	                   ║                ║ ↳ 2 replies
+	[2022-11-11 11:12] ║ Nanashino Gon… ║ Hello John
+<
+
+|gitter-buffer-room| has 3 column and each columns is separated with `U+2551`
+(BOX DRAWINGS DOUBLE VERTICAL, "║").
+The first column is sent time of the message, formated as `[YYYY-MM-dd HH:mm]` .
+The second column is the display name (not username) of the message author.
+If the display name is longer than the length of second column, it will be
+truncated with `U+2026` (HORIZONTAL ELLIPSIS, "…").
+The last column is the content of the message. If the message has thread,
+The counts of messages in thread will be displayed with special prefix,
+`U+21B3` (DOWNWARDS ARROW WITH TIP RIGHTWARDS, "↳").
 
 ------------------------------------------------------------------------------
 MAPPINGS						*gitter-mappings*
