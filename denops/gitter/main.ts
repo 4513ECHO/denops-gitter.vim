@@ -10,15 +10,11 @@ import {
   assertString,
   ensureString,
 } from "https://deno.land/x/unknownutil@v2.0.0/mod.ts";
-import { chatMessagesStream } from "./stream.ts";
-import { convertUriToId, getRooms } from "./room.ts";
-import { getRoomMessages, sendMedia, sendMessage } from "./message.ts";
+import { Gitter } from "./gitter/mod.ts";
 import { renderMessages, spinner } from "./util.ts";
 
 export async function main(denops: Denops): Promise<void> {
-  const [token] = await Promise.all([
-    vars.g.get(denops, "gitter#token"),
-  ]);
+  const token = await vars.g.get(denops, "gitter#token");
   if (typeof token !== "string" || !token) {
     await denops.call(
       "gitter#general#print_error",
@@ -26,6 +22,7 @@ export async function main(denops: Denops): Promise<void> {
     );
     return;
   }
+  const gitter = new Gitter(token);
   denops.dispatcher = {
     async loadRoom(
       uri: unknown,
@@ -35,7 +32,7 @@ export async function main(denops: Denops): Promise<void> {
       assertNumber(bufnr);
       const controller = new AbortController();
       const [id] = anonymous.once(denops, () => controller.abort());
-      const roomId = await convertUriToId(ensureString(uri), token);
+      const roomId = await gitter.convertUriToId(ensureString(uri));
 
       if (!roomId) {
         await denops.call("gitter#general#print_error", "roomId is not found");
@@ -50,7 +47,7 @@ export async function main(denops: Denops): Promise<void> {
           await renderMessages(
             denops,
             bufnr,
-            await getRoomMessages(roomId, token, { limit: 100 }),
+            await gitter.getRoomMessages(roomId, { limit: 100 }),
           );
         });
         await denops.cmd("normal! Gz-");
@@ -81,9 +78,8 @@ export async function main(denops: Denops): Promise<void> {
 
       try {
         for await (
-          const message of chatMessagesStream({
+          const message of gitter.chatMessagesStream({
             roomId,
-            token,
             signal: controller.signal,
           })
         ) {
@@ -117,7 +113,7 @@ export async function main(denops: Denops): Promise<void> {
         const resp = await spinner(
           denops,
           "Sending media",
-          () => sendMedia({ roomId, token, media }),
+          () => gitter.sendMedia({ roomId, media }),
         );
 
         if (resp.status != 200) {
@@ -134,12 +130,12 @@ export async function main(denops: Denops): Promise<void> {
       await spinner(
         denops,
         "Sending message",
-        () => sendMessage({ token, roomId, text }),
+        () => gitter.sendMessage({ roomId, text }),
       );
     },
     async selectRooms(bufnr: unknown): Promise<void> {
       await batch.batch(denops, async (denops) => {
-        const rooms = await getRooms(token);
+        const rooms = await gitter.rooms();
         await spinner(
           denops,
           "Loading rooms",
