@@ -4,19 +4,43 @@ export enum Channel {
   SUBSCRIBE = "/meta/subscribe",
 }
 
-/* example
-  const client = new FayeClient("https://ws.gitter.im/faye")
-  await client.handshake(token)
-  for await (const resp of client.subscribe(channel)) {
-    console.log(resp)
-  }
-*/
+export type Advice = {
+  reconnect: "handshake";
+} | {
+  reconnect: "retry";
+  interval: number;
+  timeout: number;
+};
+
+export interface HandshakeResponse<T = unknown> {
+  channel: Channel.HANDSHAKE;
+  successful: boolean;
+  version: "1.0";
+  supportedConnectionTypes: string[];
+  clientId: string;
+  advice?: Advice;
+  ext?: T;
+}
+
+export interface ConnectResponse {
+  clientId: string;
+  channel: Channel.CONNECT;
+  successful: boolean;
+  advice?: Advice;
+}
+
+export interface SubscribedItem<T = unknown, U = unknown> {
+  channel: string;
+  data: T;
+  id: string;
+  ext?: U;
+}
 
 export class FayeClient {
   #clientId?: string;
-  #endpoint: string | URL;
+  #endpoint: URL;
   constructor(endpoint: string | URL) {
-    this.#endpoint = endpoint;
+    this.#endpoint = new URL(endpoint);
   }
 
   async #fetch(
@@ -37,32 +61,34 @@ export class FayeClient {
     });
   }
 
-  async handshake(token: string): Promise<void> {
+  async handshake(token: string): Promise<HandshakeResponse> {
     const handshake = await this.#fetch(Channel.HANDSHAKE, {
       version: "1.0",
       supportedConnectionTypes: ["long-polling"],
       ext: { token },
     });
-    console.log(handshake.status, handshake.statusText);
-    const json = await handshake.json();
-    console.log(json);
+    const json = await handshake.json() as HandshakeResponse[];
     this.#clientId = json[0].clientId;
+    return json[0];
   }
 
-  async #subscribe(channel: string): Promise<unknown> {
+  async *subscribe<T = unknown, U = unknown>(
+    channel: string,
+  ): AsyncIterableIterator<SubscribedItem<T, U>> {
     await this.#fetch(Channel.SUBSCRIBE, {
       clientId: this.#clientId,
       subscription: channel,
     });
-    const response = await this.#fetch(Channel.CONNECT, {
-      clientId: this.#clientId,
-    });
-    return response.json();
-  }
-
-  async *subscribe(channel: string): AsyncIterableIterator<unknown> {
     while (true) {
-      yield this.#subscribe(channel);
+      const response = await this.#fetch(Channel.CONNECT, {
+        clientId: this.#clientId,
+      });
+      const result = await response.json() as
+        | [ConnectResponse]
+        | [ConnectResponse, SubscribedItem<T, U>];
+      if (result.length === 2) {
+        yield result[1];
+      }
     }
   }
 }
