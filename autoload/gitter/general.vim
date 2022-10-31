@@ -1,6 +1,6 @@
 function! gitter#general#detect_buffer(uri) abort
   if type(get(g:, 'gitter#token', v:null)) != v:t_string
-    call gitter#genetal#print_error('Parsonal Access Token is invalid')
+    call gitter#general#print_error('Personal Access Token is invalid')
     return
   endif
   let uri = substitute(a:uri, '^gitter://', '', '')
@@ -14,7 +14,7 @@ function! gitter#general#detect_buffer(uri) abort
     call denops#notify('gitter', 'loadRoom',
           \ [substitute(uri, '^room/', '', 'g'), bufnr(), win_getid()])
   else
-    call gitter#genetal#print_error('You accessed wrong named buffer')
+    call gitter#general#print_error('You accessed wrong named buffer')
   endif
 endfunction
 

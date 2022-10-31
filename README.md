@@ -14,7 +14,7 @@
 
 ## Usage
 
-You have to set your parsonal access token to `g:gitter#token`.
+You have to set your personal access token to `g:gitter#token`.
 
 ```vim
 let g:gitter#token = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
