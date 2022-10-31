@@ -36,7 +36,7 @@ export interface SubscribedItem<T = unknown, U = unknown> {
   ext?: U;
 }
 
-export class FayeClient {
+export class Client {
   #clientId?: string;
   #endpoint: URL;
   constructor(endpoint: string | URL) {
@@ -61,6 +61,8 @@ export class FayeClient {
     });
   }
 
+  // TODO: Add extensible feature
+  //       Make this.#fetch typing more strict (detect from Channel)
   async handshake(token: string): Promise<HandshakeResponse> {
     const handshake = await this.#fetch(Channel.HANDSHAKE, {
       version: "1.0",
