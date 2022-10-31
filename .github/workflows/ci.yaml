@@ -21,6 +21,3 @@ jobs:
         run: deno fmt --check
       - name: Lint
         run: deno lint
-      - name: Check typing
-        run: deno check --remote **/*.ts
-        shell: bash
