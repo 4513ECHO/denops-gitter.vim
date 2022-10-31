@@ -22,4 +22,4 @@ jobs:
       - name: Lint
         run: deno lint
       - name: Check typing
-        run: "deno check --remote **/*.ts"
+        run: deno check --remote **/*.ts
