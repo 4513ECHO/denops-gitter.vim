@@ -50,7 +50,7 @@ export class Client {
   ): AsyncIterableIterator<T> {
     const { body } = await this.fetch(
       path,
-      { endpoint: "https://stream.gitter.im/api/v1/", signal },
+      { endpoint: "https://stream.gitter.im/v1/", signal },
     );
     for await (
       const data of body!
