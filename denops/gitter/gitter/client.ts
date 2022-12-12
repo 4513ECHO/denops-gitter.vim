@@ -1,5 +1,5 @@
-import { TextLineStream } from "https://deno.land/std@0.159.0/streams/mod.ts";
-import { JsonParseStream } from "https://deno.land/std@0.159.0/encoding/json/stream.ts";
+import { TextLineStream } from "https://deno.land/std@0.167.0/streams/mod.ts";
+import { JsonParseStream } from "https://deno.land/std@0.167.0/encoding/json/stream.ts";
 import { urlJoin } from "https://deno.land/x/url_join@1.0.0/mod.ts";
 
 export interface FetchOptions {
