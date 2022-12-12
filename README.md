@@ -1,6 +1,6 @@
 # denops-gitter.vim
 
-[Gitter](https://gitter.im) client for vim written in denops
+🎸 Asynchronous realtime [Gitter](https://gitter.im) client for Vim/Neovim
 
 > **Note** This plugins is still alpha version and working in progress. There
 > may be bugs and breaking changes.

@@ -1,4 +1,4 @@
-*gitter.txt*				Gitter client for vim written in denops
+*gitter.txt*			Asynchronous realtime Gitter client for Vim/Neovim
 
 Author: Hibiki <4513echo@gmail.com>
 License: MIT License
