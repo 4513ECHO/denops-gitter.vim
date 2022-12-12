@@ -3,7 +3,7 @@
 Author: Hibiki <4513echo@gmail.com>
 License: MIT License
 URL: https://github.com/4513ECHO/denops-gitter.vim
-Last change: 2022 Oct 30
+Last change: 2022 Dec 13
 
 ==============================================================================
 CONTENTS						*gitter-contents*
@@ -45,7 +45,6 @@ VARIABLES						*gitter-variables*
 *g:gitter#token*
 		|String| (default: undefined)
 	Your personal access token for Gitter.
-	This must be set before denops.vim initialization.
 
 *g:gitter#send_on_write*
 		|Boolean| (default: |v:false|)

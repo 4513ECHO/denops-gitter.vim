@@ -14,21 +14,34 @@ import { Gitter } from "./gitter/mod.ts";
 import { renderMessages, spinner } from "./util.ts";
 
 export async function main(denops: Denops): Promise<void> {
-  const token = await vars.g.get(denops, "gitter#token");
-  if (typeof token !== "string" || !token) {
-    await denops.call(
-      "gitter#general#print_error",
-      `Personal Access Token is invalid: ${token}`,
-    );
-    return;
-  }
-  const gitter = new Gitter(token);
+  let clientCache: Gitter;
+  const ensureClient = async (): Promise<Gitter | null> => {
+    if (clientCache) {
+      return clientCache;
+    }
+    const token = await vars.g.get(denops, "gitter#token");
+    console.log(`[gitter] token: ${token}`);
+    if (typeof token !== "string" || !token) {
+      await denops.call(
+        "gitter#general#print_error",
+        `Personal Access Token is invalid: ${token}`,
+      );
+      return null;
+    }
+    const client = clientCache = new Gitter(token);
+    return client;
+  };
+
   denops.dispatcher = {
     async loadRoom(
       uri: unknown,
       bufnr: unknown,
       winid: unknown,
     ): Promise<void> {
+      const gitter = await ensureClient();
+      if (!gitter) {
+        return;
+      }
       assertNumber(bufnr);
       const controller = new AbortController();
       const [id] = anonymous.once(denops, () => controller.abort());
@@ -101,6 +114,10 @@ export async function main(denops: Denops): Promise<void> {
       }
     },
     async sendMedia(roomId: unknown): Promise<void> {
+      const gitter = await ensureClient();
+      if (!gitter) {
+        return;
+      }
       assertString(roomId);
       const file = await helper.input(denops, {
         prompt: "media: ",
@@ -125,6 +142,10 @@ export async function main(denops: Denops): Promise<void> {
       }
     },
     async sendMessage(roomId: unknown, text: unknown): Promise<void> {
+      const gitter = await ensureClient();
+      if (!gitter) {
+        return;
+      }
       assertString(roomId);
       assertString(text);
       await spinner(
@@ -134,6 +155,10 @@ export async function main(denops: Denops): Promise<void> {
       );
     },
     async selectRooms(bufnr: unknown): Promise<void> {
+      const gitter = await ensureClient();
+      if (!gitter) {
+        return;
+      }
       await batch.batch(denops, async (denops) => {
         const rooms = await gitter.rooms();
         await spinner(
@@ -148,4 +173,6 @@ export async function main(denops: Denops): Promise<void> {
       });
     },
   };
+
+  await Promise.resolve();
 }

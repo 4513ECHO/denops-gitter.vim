@@ -1,8 +1,4 @@
 function! gitter#general#detect_buffer(uri) abort
-  if type(get(g:, 'gitter#token', v:null)) != v:t_string
-    call gitter#general#print_error('Personal Access Token is invalid')
-    return
-  endif
   let uri = substitute(a:uri, '^gitter://', '', '')
   if uri == 'rooms'
     setlocal filetype=gitter-rooms
