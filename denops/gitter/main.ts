@@ -20,7 +20,6 @@ export async function main(denops: Denops): Promise<void> {
       return clientCache;
     }
     const token = await vars.g.get(denops, "gitter#token");
-    console.log(`[gitter] token: ${token}`);
     if (typeof token !== "string" || !token) {
       await denops.call(
         "gitter#general#print_error",
