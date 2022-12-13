@@ -42,5 +42,9 @@ export async function spinner<T>(
       clearInterval(timer);
       setTimeout(() => denops.cmd("echo '' | redraw"), 800);
       return value;
+    })
+    .catch((err) => {
+      clearInterval(timer);
+      throw err;
     });
 }
