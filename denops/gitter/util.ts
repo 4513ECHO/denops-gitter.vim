@@ -1,25 +1,18 @@
 import type { Denops } from "https://deno.land/x/denops_std@v3.10.2/mod.ts";
+import type { Entry } from "./renderer.ts";
 import type { Message } from "./gitter/types.ts";
 import { datetime } from "https://deno.land/x/ptera@v1.0.2/mod.ts";
 
-export async function renderMessages(
-  denops: Denops,
-  bufnr: number,
-  messages: Message[],
-): Promise<void> {
-  await denops.call(
-    "gitter#renderer#message#append",
-    bufnr,
-    messages.map((msg) => ({
-      username: msg.fromUser.displayName,
-      text: msg.text,
-      id: msg.id,
-      thread: msg.threadMessageCount ?? 0,
-      sent: datetime(msg.sent, { timezone: "UTC" })
-        .toLocal()
-        .format("YYYY-MM-dd HH:mm"),
-    })),
-  );
+export function entryFromMessage(message: Message): Entry {
+  return {
+    username: message.fromUser.displayName,
+    text: message.text,
+    id: message.id,
+    thread: message.threadMessageCount ?? 0,
+    sent: datetime(message.sent, { timezone: "UTC" })
+      .toLocal()
+      .format("YYYY-MM-dd HH:mm"),
+  };
 }
 
 const frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];

@@ -52,3 +52,17 @@ function! gitter#general#truncate(str, width) abort
         \ ? a:str
         \ : strcharpart(a:str, 0, a:width - strdisplaywidth('…')) .. '…'
 endfunction
+
+" @param entry { username: string, text: string, sent: string, id: string, thread: number }
+" @return string[]
+function! gitter#general#format_message(entry) abort
+  let format = ['[%16s] ║ %14s ║ %s', printf('%19s║%16s║ %%s', '', '')]
+  let text = split(a:entry.text, "\n")
+  let lines = [printf(format[0], a:entry.sent, gitter#general#truncate(a:entry.username, 14), text[0])]
+        \ + (len(text) > 1 ? map(text[1:], { _, val -> printf(format[1], val) }) : [])
+        \ + (a:entry.thread > 0
+        \   ? [printf(format[1], '↳ ' .. a:entry.thread ..
+        \     ' repl' .. (a:entry.thread == 1 ? 'y' : 'ies'))]
+        \   : [])
+  return lines
+endfunction

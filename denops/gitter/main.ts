@@ -11,7 +11,8 @@ import {
   ensureString,
 } from "https://deno.land/x/unknownutil@v2.1.0/mod.ts";
 import { Gitter } from "./gitter/mod.ts";
-import { renderMessages, spinner } from "./util.ts";
+import { entryFromMessage, spinner } from "./util.ts";
+import * as renderer from "./renderer.ts";
 
 export async function main(denops: Denops): Promise<void> {
   let clientCache: Gitter;
@@ -52,25 +53,18 @@ export async function main(denops: Denops): Promise<void> {
       }
 
       await batch.batch(denops, async (denops) => {
-        await vars.b.set(denops, "_gitter", { roomId, uri, messages: [] });
+        await fn.setbufvar(
+          denops,
+          bufnr,
+          "_gitter",
+          { roomId, uri, messages: [] },
+        );
         await vars.g.set(denops, "gitter#_parent_winid", winid);
-        // get room's message history at first
-        await spinner(denops, "Loading messages", async () => {
-          await renderMessages(
-            denops,
-            bufnr,
-            await gitter.getRoomMessages(roomId, { limit: 100 }),
-          );
-        });
-        await denops.cmd("normal! Gz-");
         await denops.call(
           "gitter#general#add_buf_listener",
           bufnr,
           "gitter#general#goto_bottom",
         );
-        if (denops.meta.host === "vim") {
-          await denops.cmd("redraw");
-        }
         await autocmd.group(denops, "gitter_internal", (helper) => {
           helper.remove("*", `<buffer=${bufnr}>`);
           helper.define(
@@ -88,6 +82,23 @@ export async function main(denops: Denops): Promise<void> {
         });
       });
 
+      // get room's message history at first
+      // NOTE: renderer.append() cannot be called in batch()
+      await spinner(denops, "Loading messages", async () => {
+        await renderer.append(
+          denops,
+          bufnr,
+          (await gitter.getRoomMessages(roomId, { limit: 100 }))
+            .map(entryFromMessage),
+        );
+        await batch.batch(denops, async (denops) => {
+          await denops.cmd("normal! Gz-");
+          if (denops.meta.host === "vim") {
+            await denops.cmd("redraw");
+          }
+        });
+      });
+
       try {
         for await (
           const message of gitter.chatMessagesStream({
@@ -96,13 +107,9 @@ export async function main(denops: Denops): Promise<void> {
           })
         ) {
           if (message.parentId) {
-            await denops.call(
-              "gitter#renderer#message#increase_thread",
-              bufnr,
-              message.parentId,
-            );
+            await renderer.increaceThread(denops, bufnr, message.parentId);
           } else {
-            await renderMessages(denops, bufnr, [message]);
+            await renderer.append(denops, bufnr, [entryFromMessage(message)]);
           }
         }
       } catch (error: unknown) {
