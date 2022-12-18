@@ -148,12 +148,12 @@ export async function main(denops: Denops): Promise<void> {
       }
     },
     async sendMessage(roomId: unknown, text: unknown): Promise<void> {
-      const gitter = await ensureClient();
-      if (!gitter) {
-        return;
-      }
       assertString(roomId);
       assertString(text);
+      const gitter = await ensureClient();
+      if (!gitter || text.trim() === "") {
+        return;
+      }
       await spinner(
         denops,
         "Sending message",
