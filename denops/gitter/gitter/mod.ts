@@ -1,5 +1,6 @@
 import type { Message, Room, User } from "./types.ts";
 import { Client } from "./client.ts";
+import { Client as FayeClient } from "../faye/mod.ts";
 
 export interface SendMessageOptions {
   roomId: string;
@@ -27,11 +28,13 @@ const roomCache = new Map<string, string>();
 
 export class Gitter {
   #client: Client;
+  #token: string;
   constructor(token: string) {
     if (token.length !== 40) {
       throw new Error("Token must be 40 character hex string");
     }
     this.#client = new Client(token);
+    this.#token = token;
   }
 
   async me(): Promise<User> {
@@ -129,5 +132,11 @@ export class Gitter {
     ) {
       yield data;
     }
+  }
+
+  async faye(): Promise<FayeClient> {
+    const client = new FayeClient("https://ws.gitter.im/faye");
+    await client.handshake(this.#token);
+    return client;
   }
 }

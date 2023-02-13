@@ -36,8 +36,8 @@ endif
 " unneeded arguments as callback
 function! gitter#general#goto_bottom(...) abort
   let winid = get(g:, 'gitter#_parent_winid', 0)
-  if winid && line('.', winid) == line('w$', winid)
-    call win_execute(winid, "execute 'normal! Gz-' | redraw")
+  if winid && line('.', winid) >= (line('$', winid) - winheight(winid))
+    call win_execute(winid, "call winrestview({ 'topline': line('$') - winheight(0) }) | redraw")
   endif
 endfunction
 
