@@ -2,8 +2,8 @@
 
 🎸 Asynchronous realtime [Gitter](https://gitter.im) client for Vim/Neovim
 
-> **Note** This plugins is still alpha version and working in progress. There
-> may be bugs and breaking changes.
+> **Wraning** This plugin is no longer maintained. Please use
+> [parade.vim](https://github.com/4513ECHO/parade.vim) instead.
 
 ## Requirements
 
